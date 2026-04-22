@@ -1,4 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap');
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+}
 
 body {
     font-family: 'Playfair Display', serif;
@@ -14,7 +19,9 @@ body {
     justify-content: center;   /* Tengah secara horizontal */
     
     overflow: hidden;
-    position: relative
+    position: relative;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Efek Vignette untuk mengisi kekosongan di pinggir layar */
@@ -82,6 +89,7 @@ section {
 
 #garden-section {
     background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%);
+    
 }
 
 @keyframes fadeIn {
@@ -215,6 +223,7 @@ p {
     background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%);
     cursor: pointer;
     z-index: 1;
+    touch-action: manipulation;
 }
 
 /* Tambahkan efek glow di atas background agar terasa lebih 'airy' */
