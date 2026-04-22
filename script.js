@@ -168,6 +168,8 @@ window.addEventListener('DOMContentLoaded', () => {
             // 1. Picu Fullscreen
             activateFullscreen();
 
+            window.scrollTo(0, 0);
+            
             // 2. Tutup Tirai
             transitionEl.classList.remove('fade-in');
             transitionEl.classList.add('fade-out');
