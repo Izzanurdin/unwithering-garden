@@ -417,7 +417,12 @@ p {
     
     /* Warna cahaya halus. Pake warna kelopak luar tapi sangat transparan. */
     /* Kita ambil warna --outer dari JS */
-    background-color: var(--outer); 
+    background: radial-gradient(
+        circle, 
+        var(--outer) 0%, 
+        rgba(255, 255, 255, 0.05) 40%, 
+        transparent 70%
+    );
     
     /* Transparansi cahaya yang SANGAT HALUS */
     opacity: 0.12; /* Sesuai preferensimu, 0.1 sampai 0.2 biasanya pas */
