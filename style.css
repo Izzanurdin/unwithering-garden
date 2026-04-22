@@ -67,14 +67,16 @@ body::after {
     z-index: 2;
 }
 
-#landing-section, #garden-section {
+section {
     width: 100vw;
-    /* vh sebagai cadangan, dvh sebagai utama */
     height: 100vh;
-    height: 100dvh; 
+    height: 100dvh; /* Untuk memastikan tinggi penuh di perangkat mobile */
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    align-items: center;
+    justify-content: center;
 }
 
 #landing-section {
@@ -89,6 +91,8 @@ body::after {
 #garden-section {
     background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%); 
 }
+
+
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
