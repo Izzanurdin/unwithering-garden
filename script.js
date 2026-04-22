@@ -120,6 +120,19 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     gardenContainer.appendChild(gerbera);
 }
 
+function renderGerberas() {
+    const gardenContainer = document.getElementById('garden');
+    if (!gardenContainer) return;
+
+    // Cek agar tidak spawn berkali-kali setiap klik back/enter
+    if (document.querySelectorAll('.gerbera-coded').length > 0) return;
+
+    const shuffledColors = shuffleArray(gerberaColors);
+    createPermanentGerbera(20, 30, shuffledColors[0]);
+    createPermanentGerbera(50, 50, shuffledColors[1]);
+    createPermanentGerbera(80, 25, shuffledColors[2]);
+}
+
 // ==========================================
 // 5. EKSEKUSI UTAMA (DOM READY)
 // ==========================================
