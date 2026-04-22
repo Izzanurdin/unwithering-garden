@@ -408,10 +408,16 @@ p {
     height: 120px; /* Diperbesar */
     pointer-events: none;
     z-index: 100;
-    filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.5));
+    /* filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.5)); */
     /* Animasi goyang lembut seperti tertiup angin */
     animation: sway 4s ease-in-out infinite;
     transform: translate(-50%, -50%);
+    /* Gunakan box-shadow dengan spread pada elemen lingkaran di belakang bunga */
+    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.3); /* spread: 5px */
+    border-radius: 50%; /* Pastikan wadah adalah lingkaran */
+    
+    /* Trik will-change untuk rendering keras */
+    will-change: transform;
 }
 
 .gerbera-coded .petal {
