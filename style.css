@@ -152,14 +152,15 @@ p {
 #backBtn {
     position: absolute;
     bottom: 40px;
-    left: 40px;
+    left: 20px;
     z-index: 30;
+    margin-bottom: env(safe-area-inset-bottom);
 }
 
 #resetBtn {
     position: absolute;
     bottom: 40px;
-    right: 40px;
+    right: 20px;
     z-index: 30;
 }
 
@@ -371,8 +372,13 @@ p {
     }
 
     #backBtn, #resetBtn {
-        width: 44vw; 
-        bottom: 60px; 
+        position: absolute;
+        width: 42vw; 
+        bottom: 80px; 
+        margin-bottom: env(safe-area-inset-bottom);
+        font-size: 11px; /* Sedikit lebih kecil agar teks tidak overflow */
+        height: 50px;   /* Konsisten namun kompak */
+        padding: 0 10px;
     }
 
     .gerbera-coded {
@@ -389,5 +395,13 @@ p {
     .gerbera-coded .center {
         width: 18px;
         height: 18px;
+    }
+    
+    #backBtn {
+        left: 5vw;
+    }
+
+    #resetBtn {
+        right: 5vw;
     }
 }
