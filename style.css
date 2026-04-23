@@ -1,8 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap');
+
+/* --- GLOBAL & RESET --- */
 * {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     outline: none;
+    box-sizing: border-box;
 }
 
 body {
@@ -11,20 +14,17 @@ body {
     background: radial-gradient(circle at center, #0a150a 0%, #000000 70%, #000000 100%);
     margin: 0;
     padding: 0;
-    /* KUNCI UTAMA TENGAH VERTIKAL & HORIZONTAL */
     width: 100vw;
     height: 100vh;
     display: flex;
-    align-items: center;      /* Tengah secara vertikal */
-    justify-content: center;   /* Tengah secara horizontal */
-    
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
     position: relative;
     -webkit-user-select: none;
     user-select: none;
 }
 
-/* Efek Vignette untuk mengisi kekosongan di pinggir layar */
 body::after {
     content: '';
     position: absolute;
@@ -33,7 +33,7 @@ body::after {
     pointer-events: none;
 }
 
-/* Tirai Transisi Halaman */
+/* --- LAYOUT & TRANSITIONS --- */
 .page-transition {
     position: fixed;
     top: 0;
@@ -41,36 +41,19 @@ body::after {
     width: 100vw;
     height: 100vh;
     background-color: #000;
-    z-index: 9999; /* Pastikan di atas segalanya */
+    z-index: 9999;
     pointer-events: none;
     transition: opacity 0.8s ease-in-out;
-    opacity: 1; /* Mulai dengan tertutup saat halaman load */
-}
-
-/* Class untuk membuka tirai */
-.page-transition.fade-in {
-    opacity: 0;
-}
-
-/* Class untuk menutup tirai saat berpindah halaman */
-.page-transition.fade-out {
     opacity: 1;
 }
 
-/* Container sekarang hanya bertindak sebagai pembungkus tanpa mengatur posisi lagi */
-.container {
-    width: 100%;
-    max-width: 1000px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-}
+.page-transition.fade-in { opacity: 0; }
+.page-transition.fade-out { opacity: 1; }
 
 section {
     width: 100vw;
     height: 100vh;
-    height: 100dvh; /* Untuk memastikan tinggi penuh di perangkat mobile */
+    height: 100dvh;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -83,7 +66,6 @@ section {
     width: 100%;
     max-width: 800px;
     padding: 20px;
-    /* Pastikan tidak ada margin-top atau margin-bottom yang mengganggu */
     margin: 0 auto; 
     z-index: 10;
 }
@@ -92,11 +74,93 @@ section {
     background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%); 
 }
 
+.container {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+/* --- UI COMPONENTS --- */
+h1 {
+    color: #f0f0f0;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    font-weight: 500;
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.4), 0 0 40px rgba(76, 175, 80, 0.2);
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+}
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+p {
+    color: #b0b0b0;
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    opacity: 0.8;
+}
+
+.btn, .reset-btn {
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 0 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    font-family: 'Cinzel', serif;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap; 
+    height: 55px; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before { left: 100%; }
+
+.btn:hover, .reset-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+#backBtn {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    z-index: 30;
+}
+
+#resetBtn {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    z-index: 30;
 }
 
 .fullscreen-toggle {
@@ -114,121 +178,19 @@ section {
     transition: 0.3s;
 }
 
-.fullscreen-toggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-h1 {
-    color: #f0f0f0;
-    font-family: 'Cinzel', serif;
-    font-size: clamp(2rem, 8vw, 4.5rem);
-    font-weight: 500;
-    /* Glow hijau yang lebih lembut */
-    text-shadow: 0 0 20px rgba(76, 175, 80, 0.4), 0 0 40px rgba(76, 175, 80, 0.2);
-    margin: 0 0 20px 0;
-    line-height: 1.1;
-}
-
-p {
-    color: #b0b0b0;
-    font-size: clamp(0.9rem, 3vw, 1.2rem);
-    line-height: 1.6;
-    max-width: 500px;
-    margin: 0 auto 40px;
-    opacity: 0.8;
-}
-
-.btn {
-    background: transparent;
-    color: #ffffff;
-    border: 2px solid #ffffff;
-    padding: 0 30px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 50px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    text-transform: uppercase;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    font-family: 'Cinzel', serif;
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-    margin: 20px 0;
-
-    margin: 20px auto;
-
-    white-space: nowrap; 
-    height: 55px; 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn:hover::before {
-    left: 100%;
-}
-
-.btn:hover {
-    background: #ffffff;
-    color: #000000;
-    border: 2px solid #000000;
-    box-shadow: 0 10px 30px rgba(255,255,255,0.3);
-    transform: translateY(-3px);
-}
-
-#backBtn {
-    position: absolute;
-    bottom: 40px;
-    left: 40px;    /* Memaksa tombol ke KIRI */
-    right: auto;
-    margin: 0;     /* KUNCI: Menghilangkan efek margin dari halaman depan agar tingginya pas */
-    z-index: 30;
-}
-
-#resetBtn {
-    position: absolute;
-    bottom: 40px;
-    right: 40px;   /* Memaksa tombol ke KANAN */
-    left: auto;
-    top: auto;
-    margin: 0;     /* KUNCI: Disamakan dengan tombol Go Back */
-    z-index: 30;
-}
-
-.btn:hover {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
-    transform: translateY(-2px);
-}
-
+/* --- OBJECT: GARDEN CORE --- */
 .garden {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    /* Gradasi baru: Hijau botol ke arah Teal gelap, dengan pusat cahaya lembut */
     background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%);
     cursor: pointer;
     z-index: 1;
     touch-action: manipulation;
 }
 
-/* Tambahkan efek glow di atas background agar terasa lebih 'airy' */
 .garden::before {
     content: '';
     position: absolute;
@@ -237,44 +199,7 @@ p {
     pointer-events: none;
 }
 
-.container {
-    position: relative;
-    z-index: 2;
-    height: 100vh;
-    padding: 0;
-}
-
-.reset-btn {
-    background: transparent;
-    color: #ffffff;
-    border: 2px solid #ffffff;
-    padding: 0 30px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 50px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    text-transform: uppercase;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    font-family: 'Cinzel', serif;
-    backdrop-filter: blur(10px);
-    
-    white-space: nowrap; 
-    height: 55px; 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-}
-
-.reset-btn:hover {
-    background: #ffffff;
-    color: #000000;
-    border: 2px solid #000000;
-    box-shadow: 0 10px 30px rgba(255,255,255,0.3);
-    transform: translateY(-3px);
-}
-
+/* --- OBJECT: LILY --- */
 .lily-coded {
     position: absolute;
     width: 100px;
@@ -291,21 +216,18 @@ p {
     mask-image: radial-gradient(circle, black 50%, transparent 70%);
 }
 
-@keyframes bloom {
-    0% {
-        transform: translate(-50%, -50%) scale(0) rotate(-20deg);
-        opacity: 0;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg);
-        opacity: 1;
-    }
-}
-
-.lily-coded:hover {
-    transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.2)) !important;
-    /* Glow menjadi pink pekat (magenta) saat disentuh mouse */
-    filter: drop-shadow(0 0 25px rgba(216, 27, 96, 1));
+.lily-coded::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) translateZ(0);
+    width: 110px; 
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--outer) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%);
+    opacity: 0.12; 
+    filter: blur(14px) saturate(0.8);
+    z-index: -1; 
 }
 
 .lily-coded .petal {
@@ -313,61 +235,39 @@ p {
     width: 36px;  
     height: 50px; 
     background: 
-        /* Menggunakan variabel --vein untuk tulang */
         linear-gradient(to top, var(--vein) 0%, var(--vein) 100%) no-repeat center bottom / 1px 85%,
-        /* Menggunakan variabel --inner dan --outer untuk gradasi */
         radial-gradient(ellipse at 50% 70%, var(--inner) 0%, var(--inner) 40%, var(--outer) 75%);
     border-radius: 50% 50% 20% 20% / 80% 80% 15% 15%;
-    top: 0px;
     left: 32px; 
     transform-origin: center bottom;
-    filter: drop-shadow(0 0 5px rgba(216, 27, 96, 0.15));
 }
 
-/* Kelopak bagian dalam */
-.lily-coded .petal.inner {
-    background: 
-        /* Tulang Bunga untuk kelopak dalam */
-        linear-gradient(to top, #ad1457 0%, #d81b60 100%) no-repeat center bottom / 1px 80%,
-        /* REVISI GRADASI: Pink pekat di dalam, Putih solid di luar */
-        radial-gradient(ellipse at 50% 70%, #d81b60 0%, #f06292 45%, #ffffff 80%);
-        
-    filter: drop-shadow(0 0 5px rgba(136, 14, 79, 0.15));
-}
-
-/* Benang sari / pusat bunga */
 .lily-coded .center {
     position: absolute;
     width: 18px;
     height: 18px;
     background: radial-gradient(circle, #fff59d 20%, #fbc02d 100%);
     border-radius: 50%;
-    top: 41px; /* (100 - 18) / 2 */
+    top: 41px;
     left: 41px;
     box-shadow: 0 0 12px #9ccc65;
 }
 
-/* Wadah Benang Sari */
 .lily-coded .stamen-wrapper {
     position: absolute;
-    /* Left disesuaikan agar pas di tengah (30px) dikurangi setengah ketebalan */
     left: 49px; 
     width: 2px;
-    /* Height dan Top dihapus dari sini karena akan diatur dinamis oleh JavaScript */
-    transform-origin: bottom center; /* Ini kunci agar benang memancar dari tengah */
-    pointer-events: none;
+    transform-origin: bottom center;
 }
 
-/* Benang Sari (Tangkai) */
 .lily-coded .filament {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, #8bc34a 0%, #8d6e63 100%); /* Hijau ke coklat muda */
+    background: linear-gradient(to bottom, #8bc34a 0%, #8d6e63 100%);
     border-radius: 1px;
 }
 
-/* Kepala Sari (Pucuk Coklat Bintik) */
 .lily-coded .anther {
     position: absolute;
     width: 7px;
@@ -378,77 +278,15 @@ p {
         radial-gradient(circle at 30% 30%, #3e2723 0.5px, transparent 1px),
         radial-gradient(circle at 70% 60%, #3e2723 0.7px, transparent 1px),
         linear-gradient(to bottom, #8d6e63 0%, #4e342e 100%);
-    /* Bentuk organik (tidak bulat sempurna) */
     border-radius: 40% 60% 50% 50%; 
-    box-shadow: 0 0 4px rgba(78, 52, 46, 0.6);
 }
 
-/* Kita buat animasi khusus untuk menghilang */
-@keyframes poof {
-    0% {
-        transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(0) rotate(30deg);
-        opacity: 0;
-    }
-}
-
-.lily-coded.fade-out {
-    /* Menggunakan animation agar setingkat dengan bloom */
-    /* fill-mode forwards penting agar dia tetap di skala 0 setelah selesai */
-    animation: poof 0.4s cubic-bezier(0.4, 0, 1, 1) forwards !important;
-    pointer-events: none;
-}
-
-.lily-coded::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) translateZ(0);
-    perspective: 1000;
-    backface-visibility: hidden;    
-    /* Ukuran halo cahaya. Sesuaikan ukurannya di sini. */
-    /* Buat sedikit lebih besar dari bunga Lily-mu (misal bunga 80px, halo 100px) */
-    width: 110px; 
-    height: 110px;
-    pointer-events: none;
-    /* KUNCINYA DI SINI: Bikin bulet sempurna agar cahayanya gak kotak */
-    border-radius: 50%;
-    
-    /* Warna cahaya halus. Pake warna kelopak luar tapi sangat transparan. */
-    /* Kita ambil warna --outer dari JS */
-    background: radial-gradient(
-        circle, 
-        var(--outer) 0%, 
-        rgba(255, 255, 255, 0.05) 40%, 
-        transparent 70%
-    );
-    
-    
-    /* Transparansi cahaya yang SANGAT HALUS */
-    opacity: 0.12; /* Sesuai preferensimu, 0.1 sampai 0.2 biasanya pas */
-    
-    /* Efek blur ultra halus */
-    /* Safari iOS menangani ini lebih baik pada elemen bulat daripada drop-shadow */
-    filter: blur(14px) saturate(0.8); /* Sesuaikan kehalusan di sini */
-    
-    /* Pastikan cahaya ini berada di belakang kelopak bunga Lily */
-    z-index: -1; 
-}
-
-/* =========================================
-   4. BUNGA GERBERA (PERMANEN - MURNI CSS)
-   ========================================= */
+/* --- OBJECT: GERBERA --- */
 .gerbera-coded {
     position: absolute;
     width: 120px;
     height: 120px;
-    /* Penting agar posisi bunga pas di tengah titik klik */
     transform: translate(-50%, -50%); 
-    pointer-events: none;
     z-index: 5;
 }
 
@@ -456,10 +294,7 @@ p {
     position: absolute;
     width: 10px;
     height: 55px;
-    background: linear-gradient(to bottom, 
-    var(--g-color) 0%, 
-    var(--g-dark) 80%, 
-    #1e3d2f 100%);
+    background: linear-gradient(to bottom, var(--g-color) 0%, var(--g-dark) 80%, #1e3d2f 100%);
     border-radius: 50% 50% 20% 20%;
     left: 55px; 
     top: 5px;
@@ -475,103 +310,11 @@ p {
     border-radius: 50%;
     z-index: 5;
     border: 3px solid #6d4c41;
-/* TRIK KUNCI: Centering paling stabil tanpa mengandalkan transform */
     top: 0; left: 0; right: 0; bottom: 0;
     margin: auto;
 }
 
-@keyframes sway {
-    0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
-    50% { transform: translate(-50%, -50%) rotate(2deg); }
-}
-
-
-/* =========================================
-   PENGATURAN RESPONSIVE UNTUK LAYAR HP & TABLET
-   ========================================= */
-@media screen and (max-width: 768px) {
-    /* 1. Mengurangi jarak pinggir layar agar konten punya lebih banyak ruang */
-    #landing, .container {
-        padding: 20px;
-    }
-
-    /* 2. Menyesuaikan ukuran teks judul dan deskripsi sedikit lebih kecil */
-    h1 {
-        font-size: clamp(2rem, 10vw, 3rem);
-        margin-bottom: 20px;
-    }
-
-    p {
-        font-size: 1rem;
-        margin-bottom: 30px;
-        padding: 0 10px; /* Menjaga agar teks tidak terlalu menempel ke tepi */
-    }
-
-    /* 1. Aturan Dasar Semua Tombol di HP (Teks di Tengah) */
-    .btn, .reset-btn {
-        font-size: 12px; /* Ukuran font disesuaikan untuk HP */
-        white-space: normal; /* Teks diizinkan turun ke baris baru jika panjang */
-        height: auto; 
-        min-height: 55px; /* MEMAKSA tinggi semua tombol sama */
-        padding: 10px; 
-        line-height: 1.4; 
-        
-        /* Ini adalah sihir untuk menengahkan teks secara vertikal & horizontal */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-    /* 2. Tombol di Halaman Depan (Landing) */
-    #landing .btn {
-        width: 90%;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-
-    /* 3. Tombol di Halaman Taman (Go Back & Reset) - Dinaikkan posisinya */
-    #backBtn, #resetBtn {
-        width: 44vw; 
-        /* Diubah dari 25px menjadi 50px atau 60px agar lebih naik */
-        bottom: 60px; 
-        z-index: 30;
-    }
-
-    #backBtn {
-        left: 4vw;
-    }
-
-    #resetBtn {
-        right: 4vw;
-    }
-
-    /* Mengecilkan ukuran wadah Gerbera di HP */
-    .gerbera-coded {
-        width: 70px;  /* Dari 120px menjadi 70px */
-        height: 70px;
-    }
-
-    /* Menyesuaikan ukuran kelopak Gerbera di HP */
-    .gerbera-coded .petal {
-    position: absolute;
-    width: 10px;  
-    height: 55px; 
-    /* Menggunakan variabel --g-color untuk warna utama kelopak */
-    background: linear-gradient(to bottom, var(--g-color) 0%, var(--g-dark) 80%, #1e3d2f 100%);
-    border-radius: 50% 50% 20% 20%;
-    left: 55px;   
-    top: 5px;
-    transform-origin: center bottom;
-}
-
-.gerbera-coded { width: 70px; height: 70px; }
-.gerbera-coded .petal { width: 6px; height: 32px; left: 32px; }
-.gerbera-coded .center { width: 18px; height: 18px; border-width: 2px; }
-}
-
-    
-
+/* --- ATMOSPHERE: FIREFLIES & STARS --- */
 .firefly {
     position: fixed;
     width: 2px;
@@ -579,40 +322,72 @@ p {
     background-color: #4CAF50;
     border-radius: 50%;
     box-shadow: 0 0 10px #4CAF50, 0 0 20px rgba(76, 175, 80, 0.5);
-    pointer-events: none; /* KUNCI: Agar tidak mengganggu klik saat menanam bunga */
-    z-index: 2; /* Di atas background, tapi di bawah tombol navigasi */
+    pointer-events: none;
+    z-index: 2;
 }
 
-/* Style untuk Bintang Kecil */
 .magic-star {
     position: fixed;
     width: 10px;
     height: 10px;
     background-color: #fff;
-    /* Membentuk bintang 4 sudut minimalis */
     clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
     pointer-events: none;
-    z-index: 9998; /* Di bawah tirai transisi, tapi di atas bunga */
+    z-index: 9998;
     filter: drop-shadow(0 0 3px rgba(255, 249, 196, 0.8));
     animation: star-fade 2s ease-out forwards;
 }
 
+/* --- ANIMATIONS --- */
+@keyframes bloom {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg); opacity: 1; }
+}
+
+@keyframes poof {
+    0% { transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0) rotate(30deg); opacity: 0; }
+}
+
+.lily-coded.fade-out {
+    animation: poof 0.4s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
 @keyframes star-fade {
-    0% {
-        transform: translate(-50%, -50%) scale(0) rotate(0deg);
-        opacity: 0;
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    15% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(45deg); }
+    60% { opacity: 1; transform: translate(-50%, -50%) scale(0.8) rotate(90deg); }
+    100% { transform: translate(-50%, -50%) scale(0) rotate(180deg); opacity: 0; }
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media screen and (max-width: 768px) {
+    h1 { font-size: clamp(2rem, 10vw, 3rem); }
+    
+    .btn, .reset-btn {
+        font-size: 12px;
+        min-height: 55px;
+        padding: 10px;
     }
-    15% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1) rotate(45deg);
+
+    #backBtn, #resetBtn {
+        width: 44vw; 
+        bottom: 60px; 
     }
-    /* Menjaga bintang tetap solid sedikit lebih lama sebelum menghilang */
-    60% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.8) rotate(90deg);
+
+    .gerbera-coded {
+        width: 70px;
+        height: 70px;
     }
-    100% {
-        transform: translate(-50%, -50%) scale(0) rotate(180deg);
-        opacity: 0;
+
+    .gerbera-coded .petal {
+        width: 6px;
+        height: 32px;
+        left: 32px;
+    }
+
+    .gerbera-coded .center {
+        width: 18px;
+        height: 18px;
     }
 }
