@@ -208,7 +208,8 @@ p {
     pointer-events: none;
     transition: all 0.4s ease;
     transform: translate(-50%, -50%) scale(var(--scale));    
-    filter: drop-shadow(0 0 15px rgba(244, 143, 177, 0.8));
+    filter: drop-shadow(0 0 5px var(--glow-color)) 
+            drop-shadow(0 0 15px var(--glow-outer));
     --scale: 0.8; 
     animation: bloom 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     will-change: transform;
@@ -225,7 +226,10 @@ p {
     width: 110px; 
     height: 110px;
     border-radius: 50%;
-    background: radial-gradient(circle, var(--outer) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%);
+    background: linear-gradient(to top, 
+                    #ff85a2 0%, 
+                    #ffb6c1 50%, 
+                    #fff9c4 100%);    
     opacity: 0.12; 
     filter: blur(14px) saturate(0.8);
     z-index: -1; 
@@ -236,8 +240,15 @@ p {
     width: 36px;  
     height: 50px; 
     background: 
-        linear-gradient(to top, var(--vein) 0%, var(--vein) 100%) no-repeat center bottom / 1px 85%,
-        radial-gradient(ellipse at 50% 70%, var(--inner) 0%, var(--inner) 40%, var(--outer) 75%);
+        /* 1. Tulang kelopak (Vein) tetap ada di tengah */
+        linear-gradient(to top, var(--vein) 0%, var(--vein) 100%) no-repeat center bottom / 1.5px 85%,
+        /* 2. Gradasi dari tengah (pink) ke pinggir (putih) */
+        /* Kita ubah ellipse-nya agar lebih lonjong mengikuti bentuk kelopak */
+        radial-gradient(ellipse at 50% 50%, 
+            var(--inner) 0%,    /* Pink di pusat tulang */
+            var(--inner) 20%,   /* Pink bertahan sedikit sebelum memudar */
+            var(--outer) 85%    /* Memudar ke putih di tepian */
+        );
     border-radius: 50% 50% 20% 20% / 80% 80% 15% 15%;
     left: 32px; 
     transform-origin: center bottom;
@@ -289,13 +300,18 @@ p {
     height: 120px;
     transform: translate(-50%, -50%); 
     z-index: 5;
+    filter: drop-shadow(0 0 8px var(--g-glow-color))
+            drop-shadow(0 0 20px var(--g-glow-outer));
 }
 
 .gerbera-coded .petal {
     position: absolute;
     width: 10px;
     height: 55px;
-    background: linear-gradient(to bottom, var(--g-color) 0%, var(--g-dark) 80%, #1e3d2f 100%);
+    background: linear-gradient(to top, 
+                var(--g-dark) 0%, 
+                var(--g-color) 60%, 
+                var(--g-light) 100%);
     border-radius: 50% 50% 20% 20%;
     left: 55px; 
     top: 5px;

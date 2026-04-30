@@ -4,16 +4,86 @@
 
 // Profil warna untuk 3 Gerbera permanen
 const gerberaColors = [
-    { name: 'Putih', main: '#ffffff', dark: '#d1d1d1' },
-    { name: 'Merah', main: '#ff1744', dark: '#b71c1c' },
-    { name: 'Kuning', main: '#ffeb3b', dark: '#fbc02d' }
+    { 
+        // Merah
+        main: '#ff4757', 
+        dark: '#8b0000', 
+        light: '#ff7f50', 
+        glow: 'rgba(255, 71, 87, 0.8)',
+        outerGlow: 'rgba(255, 0, 0, 0.2)'
+    },
+    { 
+        // Putih
+        main: '#ffffff', 
+        dark: '#a0a0a0', 
+        light: '#e0f7fa', 
+        glow: 'rgba(255, 255, 255, 0.6)',
+        outerGlow: 'rgba(200, 230, 255, 0.3)'
+    },
+    { 
+        // Kuning
+        main: '#ffdc1e', 
+        dark: '#b8860b', 
+        light: '#fff9c4', 
+        glow: 'rgba(255, 220, 30, 0.7)',
+        outerGlow: 'rgba(255, 215, 0, 0.2)'
+    }
 ];
 
 // Profil warna untuk bunga Lily yang bisa ditanam
 const lilyProfiles = [
-    { inner: '#c2185b', outer: '#ec407a', vein: '#880e4f' }, // Pink Pekat
-    { inner: '#f8bbd0', outer: '#ffffff', vein: '#f06292' }, // Putih Dominan
-    { inner: '#d81b60', outer: '#ffffff', vein: '#c2185b' }  // Gradasi Seimbang
+    // 1. Soft Cherry Blossom (Pink pucat yang sangat lembut)
+    { 
+        inner: '#ffebee', 
+        outer: '#fce4ec', 
+        vein: '#f06292', 
+        glow: 'rgba(255, 235, 238, 0.7)', 
+        outerGlow: 'rgba(240, 98, 146, 0.2)' 
+    },
+    
+    // 2. Neon Magenta (Vibran, memberikan efek glow yang kuat di kegelapan)
+    { 
+        inner: '#ff1744', 
+        outer: '#f50057', 
+        vein: '#880e4f', 
+        glow: 'rgba(255, 23, 68, 0.8)', 
+        outerGlow: 'rgba(245, 0, 87, 0.3)' 
+    },
+    
+    // 3. Starlight White (Putih bersih dengan pendaran pink dingin)
+    { 
+        inner: '#ffffff', 
+        outer: '#fff5f8', 
+        vein: '#ff80ab', 
+        glow: 'rgba(255, 255, 255, 0.6)', 
+        outerGlow: 'rgba(255, 128, 171, 0.2)' 
+    },
+    
+    // 4. Peachy Pink (Pink ke arah salem, memberi kesan hangat)
+    { 
+        inner: '#f06292', 
+        outer: '#ff8a80', 
+        vein: '#c2185b', 
+        glow: 'rgba(240, 98, 146, 0.7)', 
+        outerGlow: 'rgba(255, 138, 128, 0.2)' 
+    },
+    
+    // 5. Deep Orchid (Pink keunguan yang elegan)
+    { 
+        inner: '#ad1457', 
+        outer: '#d81b60', 
+        vein: '#4a148c', 
+        glow: 'rgba(216, 27, 96, 0.8)', 
+        outerGlow: 'rgba(74, 20, 140, 0.2)' 
+    },
+
+    { 
+        inner: '#f06292', // Pink vibran di area dalam (dekat tulang)
+        outer: '#ffffff', // Putih bersih di area luar/tepian
+        vein: '#ad1457',  // Tulang kelopak pink tua agar kontras
+        glow: 'rgba(240, 98, 146, 0.5)', 
+        outerGlow: 'rgba(255, 255, 255, 0.2)' 
+    }
 ];
 
 // ==========================================
@@ -93,6 +163,8 @@ function initFireflies() {
 
 function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     const gardenContainer = document.getElementById('garden');
+
+
     if (!gardenContainer || !colorProfile) return;
 
     const gerbera = document.createElement('div');
@@ -104,11 +176,15 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     // Set variabel warna CSS
     gerbera.style.setProperty('--g-color', colorProfile.main);
     gerbera.style.setProperty('--g-dark', colorProfile.dark);
+    gerbera.style.setProperty('--g-light', colorProfile.light); // Ujung kelopak lebih terang
+    gerbera.style.setProperty('--g-glow-color', colorProfile.glow); // Glow inti
+    gerbera.style.setProperty('--g-glow-outer', colorProfile.outerGlow); // Aura luar
 
     // Buat 24 kelopak
     for (let i = 0; i < 24; i++) {
         const petal = document.createElement('div');
         petal.className = 'petal';
+        const randomSkew = (Math.random() - 0.5) * 2;
         petal.style.transform = `rotate(${i * 15}deg)`;
         gerbera.appendChild(petal);
     }
@@ -128,9 +204,9 @@ function renderGerberas() {
     if (document.querySelectorAll('.gerbera-coded').length > 0) return;
 
     const shuffledColors = shuffleArray(gerberaColors);
-    createPermanentGerbera(20, 30, shuffledColors[0]);
-    createPermanentGerbera(50, 50, shuffledColors[1]);
-    createPermanentGerbera(80, 25, shuffledColors[2]);
+    setTimeout(() => createPermanentGerbera(30, 45, shuffledColors[0]), 100);
+    setTimeout(() => createPermanentGerbera(70, 35, shuffledColors[1]), 500);
+    setTimeout(() => createPermanentGerbera(55, 70, shuffledColors[2]), 900);
 }
 
 // ==========================================
@@ -262,7 +338,9 @@ window.addEventListener('DOMContentLoaded', () => {
             lily.style.setProperty('--inner', profile.inner);
             lily.style.setProperty('--outer', profile.outer);
             lily.style.setProperty('--vein', profile.vein);
-            
+            lily.style.setProperty('--glow-color', profile.glow);
+            lily.style.setProperty('--glow-outer', profile.outerGlow);
+
             const scale = (Math.random() * 0.5 + 0.5).toFixed(2);
             lily.style.setProperty('--scale', scale);
 
