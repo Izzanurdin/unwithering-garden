@@ -235,10 +235,10 @@ p {
 }
 
 .lily-coded:hover {
-    transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.2)) !important;
-    
-    /* GLOW LEBIH PEKAT SAAT DISENTUH */
-    filter: drop-shadow(0 0 12px rgba(216, 27, 96, 1)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.7));
+    /* Skala membesarnya diperkecil agar tidak agresif, cukup +0.05 */
+    transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.05)) !important;
+    /* Pendaran (glow) dibuat lebih tenang dan menyebar */
+    filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.7)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.4));
 }
 
 .lily-coded .stamen-wrapper {
@@ -267,6 +267,12 @@ p {
         radial-gradient(circle at 70% 60%, #3e2723 0.7px, transparent 1px),
         linear-gradient(to bottom, #8d6e63 0%, #4e342e 100%);
     border-radius: 40% 60% 50% 50%; 
+}
+
+.lily-coded:hover {
+    /* Skalanya hanya membesar sedikit (+0.05) agar tidak agresif */
+    transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.05)) !important;
+    filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.8)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.5));
 }
 
 /* --- OBJECT: GERBERA --- */
@@ -308,6 +314,12 @@ p {
 }
 
 /* --- ANIMATIONS --- */
+
+@keyframes lily-breathe {
+    0% { transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.03)) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.06)) rotate(1.5deg); }
+}
+
 @keyframes bloom {
     0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
     100% { transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg); opacity: 1; }

@@ -478,6 +478,14 @@ window.addEventListener('DOMContentLoaded', () => {
         center.setAttribute('fill', '#fff59d');
         svg.appendChild(center);
 
+
+        svg.dataset.isBlooming = "true";
+        
+        // Hapus tanda tersebut setelah 700ms (sesuai durasi animasi bloom di CSS)
+        setTimeout(() => {
+            svg.dataset.isBlooming = "false";
+        }, 700);
+
         garden.appendChild(svg);
     });
     }
@@ -509,12 +517,78 @@ const spawnStar = (x, y) => {
     }, 2000);
 };
 
+// Variabel untuk melacak kecepatan kursor/jari
+let lastX = 0;
+let lastY = 0;
+let lastTime = Date.now();
+
+// Fungsi terpusat untuk meniup bunga
+function applyWindForce(currentX, currentY) {
+    const currentTime = Date.now();
+    const deltaX = currentX - lastX;
+    const deltaY = currentY - (typeof lastY !== 'undefined' ? lastY : currentY);
+    const deltaTime = currentTime - lastTime;
+
+    // Mencegah error pembagian dengan nol
+    if (deltaTime > 0) {
+        const speedX = deltaX / deltaTime; // Kecepatan geser horizontal
+        const speedY = deltaY / deltaTime; // Kecepatan geser vertikal
+
+        // Hitung kecepatan total (vektor)
+        const speed = Math.sqrt(speedX * speedX + speedY * speedY);
+
+       if (speed > 0.15) { 
+            const flowers = document.querySelectorAll('.lily-coded, .gerbera-coded');
+            
+            flowers.forEach(flower => {
+                if (flower.dataset.isBlooming === "true") return;
+                const rect = flower.getBoundingClientRect();
+                const flowerX = rect.left + rect.width / 2;
+                const flowerY = rect.top + rect.height / 2;
+                const distance = Math.sqrt(Math.pow(currentX - flowerX, 2) + Math.pow(currentY - flowerY, 2));
+
+                if (distance < 140) {
+                    // KUNCI 1: Hentikan animasi CSS agar tidak berebut kontrol dengan JS
+                    if (flower.style.animation !== 'none') {
+                        flower.style.animation = 'none';
+                    }
+
+                    const scale = flower.style.getPropertyValue('--scale') || 1;
+                    
+                    // KUNCI 2: Gerakan dibuat sangat halus (maksimal rotasi hanya 8 derajat)
+                    const swayAngle = Math.max(-8, Math.min(8, speedX * 5)); 
+                    const swayX = Math.max(-6, Math.min(6, speedX * 3));
+                    const swayY = Math.max(-6, Math.min(6, speedY * 3));
+
+                    clearTimeout(flower.windTimeout);
+                    
+                    // KUNCI 3: Kita targetkan KESELURUHAN BUNGA, sehingga putik dan kelopak bergerak bersamaan
+                    flower.style.transition = 'transform 0.25s ease-out';
+                    flower.style.transform = `translate(calc(-50% + ${swayX}px), calc(-50% + ${swayY}px)) scale(${scale}) rotate(${swayAngle}deg)`;
+
+                    flower.windTimeout = setTimeout(() => {
+                        // Memantul kembali dengan efek pegas yang sangat luwes
+                        flower.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.3, 1)';
+                        flower.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(0deg)`;
+                    }, 150);
+                }
+            });
+        }
+    }
+    
+    // Perbarui riwayat posisi dan waktu
+    lastX = currentX;
+    lastY = currentY;
+    lastTime = currentTime;
+}
+
 // Deteksi Gerakan Mouse (PC)
 window.addEventListener('mousemove', (e) => {
     // Kita gunakan throttle sederhana agar tidak terlalu banyak spawn (performa)
     if (Math.random() > 0.8) { 
         spawnStar(e.clientX, e.clientY);
     }
+    applyWindForce(e.clientX, e.clientY);
 });
 
 // Deteksi Seretan Jari (Mobile)
@@ -524,4 +598,6 @@ window.addEventListener('touchmove', (e) => {
     if (Math.random() > 0.7) { // Lebih sering spawn di mobile agar terasa responsif
         spawnStar(touch.clientX, touch.clientY);
     }
+    applyWindForce(touch.clientX, touch.clientY);
 }, { passive: true });
+
