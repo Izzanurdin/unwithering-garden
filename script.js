@@ -160,6 +160,7 @@ function initFireflies() {
 // ==========================================
 // 4. FUNGSI PERAKIT BUNGA (GERBERA)
 // ==========================================
+const svgNS = "http://www.w3.org/2000/svg";
 
 function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     const gardenContainer = document.getElementById('garden');
@@ -167,33 +168,70 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
 
     if (!gardenContainer || !colorProfile) return;
 
-    const gerbera = document.createElement('div');
-    gerbera.className = 'gerbera-coded';
-    gerbera.style.left = xPercent + '%';
-    gerbera.style.top = yPercent + '%';
-    gerbera.style.transform = 'translate(-50%, -50%)';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'gerbera-coded');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.style.left = xPercent + '%';
+    svg.style.top = yPercent + '%';
+    svg.style.width = '120px';
+    svg.style.height = '120px';
+    svg.style.position = 'absolute';
+    svg.style.transform = 'translate(-50%, -50%)';
+    svg.style.overflow = 'visible';
+    svg.style.setProperty('--glow-color', colorProfile.main);
 
-    // Set variabel warna CSS
-    gerbera.style.setProperty('--g-color', colorProfile.main);
-    gerbera.style.setProperty('--g-dark', colorProfile.dark);
-    gerbera.style.setProperty('--g-light', colorProfile.light); // Ujung kelopak lebih terang
-    gerbera.style.setProperty('--g-glow-color', colorProfile.glow); // Glow inti
-    gerbera.style.setProperty('--g-glow-outer', colorProfile.outerGlow); // Aura luar
+    // Setup gradient untuk kelopak SVG
+    const defs = document.createElementNS(svgNS, 'defs');
+    const gradId = `grad-gerbera-${Math.random().toString(36).substr(2, 5)}`;
+    const gradient = document.createElementNS(svgNS, 'linearGradient');
+    gradient.setAttribute('id', gradId);
+    gradient.setAttribute('x1', '0%'); gradient.setAttribute('y1', '0%');
+    gradient.setAttribute('x2', '0%'); gradient.setAttribute('y2', '100%');
+    gradient.innerHTML = `
+        <stop offset="0%" stop-color="${colorProfile.main}" />
+        <stop offset="70%" stop-color="${colorProfile.dark}" />
+        <stop offset="100%" stop-color="#1e3d2f" />
+    `;
+    defs.appendChild(gradient);
+    svg.appendChild(defs);
+
+    // Grup Kelopak (Berpusat di 50, 50)
+    const petalGroup = document.createElementNS(svgNS, 'g');
+    petalGroup.setAttribute('transform', 'translate(50, 50)');
 
     // Buat 24 kelopak
     for (let i = 0; i < 24; i++) {
-        const petal = document.createElement('div');
-        petal.className = 'petal';
-        const randomSkew = (Math.random() - 0.5) * 2;
-        petal.style.transform = `rotate(${i * 15}deg)`;
-        gerbera.appendChild(petal);
+        const petal = document.createElementNS(svgNS, 'path');
+        const angle = i * 15;
+        // Variasi acak kecil agar ujungnya tidak terlalu rata
+        const length = 45 + (Math.random() * 5 - 2.5); 
+        
+        // Menggunakan Quadratic Bezier (Q) untuk bentuk pipih meruncing
+        // Menggambar dari titik pusat (0,0) menjulur ke atas sejauh -length
+        const d = `
+            M -2.5, 0 
+            Q -6, ${-length * 0.5} -3, ${-length + 4} 
+            Q 0, ${-length - 4} 3, ${-length + 4} 
+            Q 6, ${-length * 0.5} 2.5, 0 Z
+        `;
+        
+        petal.setAttribute('d', d);
+        petal.setAttribute('fill', `url(#${gradId})`);
+        petal.setAttribute('transform', `rotate(${angle})`);
+        petalGroup.appendChild(petal);
     }
+    svg.appendChild(petalGroup);
 
-    // Inti bunga (center)
-    const center = document.createElement('div');
-    center.className = 'center';
-    gerbera.appendChild(center);
-    gardenContainer.appendChild(gerbera);
+    const center = document.createElementNS(svgNS, 'circle');
+    center.setAttribute('cx', '50');
+    center.setAttribute('cy', '50');
+    center.setAttribute('r', '12');
+    center.setAttribute('fill', '#21100b');
+    center.setAttribute('stroke', '#4e342e');
+    center.setAttribute('stroke-width', '2');
+    svg.appendChild(center);
+
+    gardenContainer.appendChild(svg);
 }
 
 function renderGerberas() {
@@ -302,98 +340,146 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Logika Klik Menanam Lily
     if (garden) {
-        garden.addEventListener('click', (e) => {
-            // Abaikan klik jika mengenai tombol
-            if (e.target.closest('.btn')) return;
+       garden.addEventListener('click', (e) => {
+        if (e.target.closest('.btn')) return;
 
-            const rect = garden.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+        const rect = garden.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-            // --- ANTI-TUMPUK (DETEKSI GERBERA) ---
-            const gerberas = document.querySelectorAll('.gerbera-coded');
-            let isTooClose = false;
-            
-            gerberas.forEach(gerbera => {
-                const gRect = gerbera.getBoundingClientRect();
-                const gX = (gRect.left + gRect.width / 2) - rect.left;
-                const gY = (gRect.top + gRect.height / 2) - rect.top;
-                
-                const distance = Math.sqrt(Math.pow(x - gX, 2) + Math.pow(y - gY, 2));
-                const safeDistance = window.innerWidth < 768 ? 55 : 100;
-                
-                if (distance < safeDistance) isTooClose = true;
-            });
+        // Logika Anti-Tumpuk (Tetap Sama)
+        const gerberas = document.querySelectorAll('.gerbera-coded');
+        let isTooClose = false;
+        gerberas.forEach(gerbera => {
+            const gRect = gerbera.getBoundingClientRect();
+            const gX = (gRect.left + gRect.width / 2) - rect.left;
+            const gY = (gRect.top + gRect.height / 2) - rect.top;
+            const distance = Math.sqrt(Math.pow(x - gX, 2) + Math.pow(y - gY, 2));
+            if (distance < (window.innerWidth < 768 ? 55 : 100)) isTooClose = true;
+        });
 
             if (isTooClose) return;
 
-            // --- PROSES RAKIT LILY ---
-            const lily = document.createElement('div');
-            lily.className = 'lily-coded';
-            lily.style.left = x + 'px';
-            lily.style.top = y + 'px';
+           // --- MULAI MERAKIT LILY Vektor ---
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('class', 'lily-coded');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.style.overflow = 'visible';
+            svg.style.left = x + 'px';
+            svg.style.top = y + 'px';
 
-            // Set Warna & Skala Acak
+            // Randomisasi Skala Utuh Bunga (Sama seperti sebelumnya)
+            const scale = (Math.random() * 0.5 + 0.6).toFixed(2);
+            svg.style.setProperty('--scale', scale);
+
+            // Ambil profil warna acak
             const profile = lilyProfiles[Math.floor(Math.random() * lilyProfiles.length)];
-            lily.style.setProperty('--inner', profile.inner);
-            lily.style.setProperty('--outer', profile.outer);
-            lily.style.setProperty('--vein', profile.vein);
-            lily.style.setProperty('--glow-color', profile.glow);
-            lily.style.setProperty('--glow-outer', profile.outerGlow);
 
-            const scale = (Math.random() * 0.5 + 0.5).toFixed(2);
-            lily.style.setProperty('--scale', scale);
+            // Definisikan Gradasi Kelopak Lily
+            const defs = document.createElementNS(svgNS, 'defs');
+            const gradId = `grad-lily-${Math.random().toString(36).substr(2, 5)}`;
+            const radGrad = document.createElementNS(svgNS, 'radialGradient');
+            radGrad.setAttribute('id', gradId);
+            radGrad.setAttribute('cx', '50%'); radGrad.setAttribute('cy', '100%'); // Titik pusat di pangkal
+            radGrad.setAttribute('r', '100%');
+            
+            radGrad.innerHTML = `
+                <stop offset="0%" stop-color="${profile.vein}" />
+                <stop offset="30%" stop-color="${profile.inner}" />
+                <stop offset="80%" stop-color="${profile.outer}" />
+            `;
+            defs.appendChild(radGrad);
+            svg.appendChild(defs);
 
-            // 1. Kelopak Luar (3)
-            for (let i = 0; i < 3; i++) {
-                const p = document.createElement('div');
-                p.className = 'petal outer';
-                const pScale = (Math.random() * 0.2 + 0.9).toFixed(2);
-                p.style.transform = `rotate(${i * 120}deg) scale(${pScale})`;
-                lily.appendChild(p);
-            }
+            // Grup Kelopak berpusat di tengah kanvas
+            const petalGroup = document.createElementNS(svgNS, 'g');
+            petalGroup.setAttribute('transform', 'translate(50, 50)');
 
-            // 2. Kelopak Dalam (3)
-            for (let i = 0; i < 3; i++) {
-                const p = document.createElement('div');
-                p.className = 'petal inner';
-                const pScale = (Math.random() * 0.15 + 0.75).toFixed(2);
-                p.style.transform = `rotate(${i * 120 + 60}deg) scale(${pScale})`;
-                lily.appendChild(p);
-            }
+            // FUNGSI MEMBUAT KELOPAK LILY REALISTIS
+            const createLilyPetal = (angle, isInner) => {
+            const p = document.createElementNS(svgNS, 'path');
+            
+            // Randomisasi lekukan: membuat ujung bunga sedikit meliuk kiri/kanan acak
+            const bend = (Math.random() * 10) - 5; 
+            const length = isInner ? 40 : 45; // Kelopak dalam lebih pendek
+            const width = isInner ? 12 : 16;  // Kelopak dalam lebih ramping
+            
+            // M = Titik pangkal (0,0)
+            // C = Cubic Bezier: Titik kontrol 1 (Kiri bawah), Titik kontrol 2 (Kiri atas), Titik Akhir (Ujung bunga)
+            // Titik kembali ke bawah dengan kurva sisi kanan
+            const d = `
+                M 0,0 
+                C -${width},-${length * 0.3} -${width * 0.8},-${length * 0.8} ${bend},-${length}
+                C ${width * 0.8},-${length * 0.8} ${width},-${length * 0.3} 0,0 Z
+            `;
+            
+            p.setAttribute('d', d);
+            p.setAttribute('fill', `url(#${gradId})`);
+            
+            // Randomisasi rotasi kelopak sedikit agar natural
+            const randomRotation = angle + (Math.random() * 10 - 5);
+            p.setAttribute('transform', `rotate(${randomRotation})`);
+            
+            // Beri efek ketebalan bayangan di dalam kelopak
+            // p.style.filter = 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))';
+            
+            return p;
+        };
 
-            // 3. Benang Sari (5-8)
-            const numStamens = Math.floor(Math.random() * 4) + 5;
-            const angleStep = 360 / numStamens;
-            for (let i = 0; i < numStamens; i++) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'stamen-wrapper';
-                const sHeight = Math.floor(Math.random() * 15) + 20;
-                wrapper.style.height = sHeight + 'px';
-                wrapper.style.top = (50 - sHeight) + 'px';
-                
-                const rAngle = (i * angleStep) + (Math.random() * 30 - 15);
-                wrapper.style.transform = `rotate(${rAngle}deg)`;
+            // 1. Kelopak Luar (3 Buah)
+        for (let i = 0; i < 3; i++) {
+            petalGroup.appendChild(createLilyPetal(i * 120, false));
+        }
 
-                const filament = document.createElement('div');
-                filament.className = 'filament';
-                wrapper.appendChild(filament);
+        // 2. Kelopak Dalam (3 Buah, diputar 60 derajat)
+        for (let i = 0; i < 3; i++) {
+            petalGroup.appendChild(createLilyPetal(i * 120 + 60, true));
+        }
+        svg.appendChild(petalGroup);
 
-                const anther = document.createElement('div');
-                anther.className = 'anther';
-                anther.style.transform = `rotate(${Math.floor(Math.random() * 60) - 30}deg)`;
-                wrapper.appendChild(anther);
+        // 3. Benang Sari & Kepala Sari (Organ Bunga)
+        const stamenGroup = document.createElementNS(svgNS, 'g');
+        stamenGroup.setAttribute('transform', 'translate(50, 50)');
+        
+        // Randomisasi jumlah benang sari 5 hingga 8[cite: 3]
+        const numStamens = Math.floor(Math.random() * 4) + 5; 
+        const angleStep = 360 / numStamens;
 
-                lily.appendChild(wrapper);
-            }
+        for (let i = 0; i < numStamens; i++) {
+            const sLength = Math.random() * 15 + 15;
+            const sAngle = (i * angleStep) + (Math.random() * 30 - 15);
+            const bend = Math.random() * 10 - 5; // Filamen melengkung
 
-            // 4. Inti Tengah
-            const center = document.createElement('div');
-            center.className = 'center';
-            lily.appendChild(center);
+            // Tangkai (Filament)
+            const filament = document.createElementNS(svgNS, 'path');
+            filament.setAttribute('d', `M 0,0 Q ${bend},-${sLength/2} 0,-${sLength}`);
+            filament.setAttribute('stroke', '#8bc34a');
+            filament.setAttribute('stroke-width', '1.5');
+            filament.setAttribute('fill', 'none');
+            filament.setAttribute('transform', `rotate(${sAngle})`);
+            stamenGroup.appendChild(filament);
 
-            garden.appendChild(lily);
-        });
+            // Kepala Sari (Anther) - Bentuk elips organik
+            const anther = document.createElementNS(svgNS, 'ellipse');
+            anther.setAttribute('rx', '2.5');
+            anther.setAttribute('ry', '4');
+            anther.setAttribute('fill', '#5d4037');
+            // Menempatkan anther tepat di ujung filament dengan rotasi acak
+            anther.setAttribute('transform', `rotate(${sAngle}) translate(0, -${sLength}) rotate(${Math.random() * 60 - 30})`);
+            stamenGroup.appendChild(anther);
+        }
+        svg.appendChild(stamenGroup);
+
+        // 4. Inti Tengah (Pistil / Putik)
+        const center = document.createElementNS(svgNS, 'circle');
+        center.setAttribute('cx', '50');
+        center.setAttribute('cy', '50');
+        center.setAttribute('r', '4');
+        center.setAttribute('fill', '#fff59d');
+        svg.appendChild(center);
+
+        garden.appendChild(svg);
+    });
     }
 });
 
