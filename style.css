@@ -207,14 +207,14 @@ p {
     height: 100px;
     pointer-events: none;
     transition: all 0.4s ease;
-    transform: translate(-50%, -50%) scale(var(--scale));    
+    transform: translate(-50%, -50%) translateZ(0) scale(var(--scale));    
+    will-change: transform, filter;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     --scale: 0.8; 
     animation: bloom 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 10;   
     filter: drop-shadow(0 0 8px rgba(255, 143, 177, 0.9)) drop-shadow(0 0 20px rgba(255, 105, 180, 0.5));
-    will-change: transform;
-    z-index: 10;
-    -webkit-mask-image: radial-gradient(circle, black 50%, transparent 70%);
-    mask-image: radial-gradient(circle, black 50%, transparent 70%);
 }
 
 .lily-coded::before {
@@ -235,10 +235,8 @@ p {
 }
 
 .lily-coded:hover {
-    /* Skala membesarnya diperkecil agar tidak agresif, cukup +0.05 */
-    transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.05)) !important;
-    /* Pendaran (glow) dibuat lebih tenang dan menyebar */
-    filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.7)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.4));
+    transform: translate(-50%, -50%) translateZ(0) scale(calc(var(--scale) + 0.05)) !important;
+    filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.8)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.5));
 }
 
 .lily-coded .stamen-wrapper {
@@ -270,7 +268,6 @@ p {
 }
 
 .lily-coded:hover {
-    /* Skalanya hanya membesar sedikit (+0.05) agar tidak agresif */
     transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.05)) !important;
     filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.8)) drop-shadow(0 0 30px rgba(216, 27, 96, 0.5));
 }
@@ -280,12 +277,13 @@ p {
     position: absolute;
     width: 120px;
     height: 120px;
-    transform: translate(-50%, -50%); 
     z-index: 5;
-    filter: drop-shadow(0 0 10px var(--glow-color)) drop-shadow(0 0 25px var(--glow-color));
-    /* Animasi goyang lembut */
     animation: sway 4s ease-in-out infinite;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) translateZ(0); 
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    filter: drop-shadow(0 0 10px var(--glow-color)) drop-shadow(0 0 25px var(--glow-color));
 }
 
 
