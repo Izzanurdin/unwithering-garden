@@ -289,30 +289,6 @@ p {
 }
 
 
-/* --- ATMOSPHERE: FIREFLIES & STARS --- */
-.firefly {
-    position: fixed;
-    width: 2px;
-    height: 2px;
-    background-color: #4CAF50;
-    border-radius: 50%;
-    box-shadow: 0 0 10px #4CAF50, 0 0 20px rgba(76, 175, 80, 0.5);
-    pointer-events: none;
-    z-index: 2;
-}
-
-.magic-star {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background-color: #fff;
-    clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
-    pointer-events: none;
-    z-index: 9998;
-    filter: drop-shadow(0 0 3px rgba(255, 249, 196, 0.8));
-    animation: star-fade 2s ease-out forwards;
-}
-
 /* --- ANIMATIONS --- */
 
 @keyframes lily-breathe {
@@ -332,13 +308,6 @@ p {
 
 .lily-coded.fade-out {
     animation: poof 0.4s cubic-bezier(0.4, 0, 1, 1) forwards !important;
-}
-
-@keyframes star-fade {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    15% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(45deg); }
-    60% { opacity: 1; transform: translate(-50%, -50%) scale(0.8) rotate(90deg); }
-    100% { transform: translate(-50%, -50%) scale(0) rotate(180deg); opacity: 0; }
 }
 
 /* --- RESPONSIVE DESIGN --- */

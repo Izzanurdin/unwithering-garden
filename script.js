@@ -128,33 +128,177 @@ function handleTransition(e, targetUrl) {
 }
 
 // ==========================================
-// 3. LOGIKA KUNANG-KUNANG (FIREFLIES)
+// 3. LOGIKA PARTIKEL (CANVAS OPTIMIZATION)
 // ==========================================
 
-function initFireflies() {
-    function createFirefly() {
-        const firefly = document.createElement('div');
-        firefly.className = 'firefly';
-        firefly.style.left = Math.random() * 100 + 'vw';
-        firefly.style.top = Math.random() * 100 + 'vh';
-        
-        const size = Math.random() * 2 + 1;
-        firefly.style.width = size + 'px';
-        firefly.style.height = size + 'px';
-        firefly.style.opacity = Math.random();
-        
-        document.body.appendChild(firefly);
+// Membuat satu kanvas untuk semua partikel
+const canvas = document.createElement('canvas');
+canvas.id = 'particle-canvas';
+document.body.appendChild(canvas);
+const ctx = canvas.getContext('2d');
 
-        const duration = Math.random() * 4000 + 4000;
-        firefly.animate([
-            { opacity: 0, transform: 'translate(0, 0)' },
-            { opacity: 1, transform: `translate(${Math.random() * 40 - 20}px, -20px)` },
-            { opacity: 0, transform: `translate(${Math.random() * 80 - 40}px, -100px)` }
-        ], { duration: duration, easing: 'ease-in-out' });
+// Styling kanvas agar tidak menghalangi interaksi klik pada bunga
+canvas.style.position = 'fixed';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.style.width = '100vw';
+canvas.style.height = '100vh';
+canvas.style.pointerEvents = 'none';
+canvas.style.zIndex = '9997'; // Di atas bunga, di bawah tirai transisi
 
-        setTimeout(() => firefly.remove(), duration);
+// Menyesuaikan ukuran kanvas dengan layar
+let width, height;
+function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const particles = [];
+
+// Blueprint untuk Kunang-kunang
+class Firefly {
+    constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 1.5 + 0.5;
+
+        this.speedX = Math.random() * 0.3 - 0.15;
+        this.speedY = Math.random() * -0.3 - 0.05;
+
+        this.life = Math.random() * 100 + 100;
+        this.opacity = Math.random();
+        this.fadeSpeed = Math.random() * 0.01 + 0.005;
     }
-    setInterval(createFirefly, 450);
+    update(dt) {
+        this.x += this.speedX * dt;
+        this.y += this.speedY * dt;
+        this.opacity += this.fadeSpeed * dt;
+        
+        if (this.opacity >= 1 || this.opacity <= 0) this.fadeSpeed *= -1; 
+        this.life -= 1 * dt;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(76, 175, 80, ${this.opacity})`; // Hijau khas kunang-kunang
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#4CAF50';
+        ctx.fill();
+    }
+}
+
+// Blueprint untuk Jejak Bintang (Star Trail)
+class Star {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 6 + 2; 
+        this.life = 1; // Transparansi awal
+        this.decay = Math.random() * 0.01 + 0.008; 
+        this.rotation = Math.random() * Math.PI * 2;
+       this.rotSpeed = (Math.random() - 0.5) * 0.04;
+        
+        const colors = ['255,255,255', '255,253,231', '255,249,196'];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+    update(dt) {
+        this.life -= this.decay * dt;
+        this.rotation += this.rotSpeed * dt;
+        this.size -= 0.015 * dt; 
+        this.y -= 0.1 * dt;
+    }
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.beginPath();
+        
+        // Menggambar bentuk bintang bersudut empat
+        for (let i = 0; i < 4; i++) {
+            ctx.lineTo(0, -this.size);
+            ctx.lineTo(this.size * 0.2, -this.size * 0.2);
+            ctx.rotate(Math.PI / 2);
+        }
+        ctx.closePath();
+        
+        ctx.fillStyle = `rgba(${this.color}, ${this.life})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `rgba(255, 249, 196, ${this.life})`;
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// Mesin Animasi Utama (Menggantikan setInterval & CSS Animations)
+function animateParticles() {
+    // Bersihkan layar setiap frame (kunci dari optimasi memori)
+    ctx.clearRect(0, 0, width, height);
+
+    // Pertahankan populasi kunang-kunang di angka yang stabil (maks 40)
+    if (particles.filter(p => p instanceof Firefly).length < 40) {
+        particles.push(new Firefly());
+    }
+
+    // Perbarui koordinat dan lukis ulang semua partikel
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        p.draw();
+
+        // Hapus partikel dari array memori jika siklus hidupnya habis atau keluar layar
+        if (p.life <= 0 || p.size <= 0 || p.y < -10) {
+            particles.splice(i, 1);
+        }
+    }
+    
+    // Panggil frame berikutnya dengan efisiensi GPU
+    requestAnimationFrame(animateParticles);
+}
+
+// Fungsi inisialisasi yang dipanggil saat masuk ke halaman garden
+function initFireflies() {
+    // Jalankan mesin animasi
+    animateParticles();
+}
+
+// Fungsi pemanggil jejak bintang dari event mousemove/touchmove
+const spawnStar = (x, y) => {
+    particles.push(new Star(x, y));
+};
+
+// === MESIN ANIMASI DENGAN DELTA TIME ===
+let lastTimeCanvas = performance.now();
+
+function animateParticles(currentTime) {
+    ctx.clearRect(0, 0, width, height);
+
+    // Hitung Delta Time (dinormalisasi ke ~60FPS yaitu 16.6ms per frame)
+    let deltaTime = (currentTime - lastTimeCanvas) / 16.66;
+    lastTimeCanvas = currentTime;
+
+    // Batasi deltaTime agar partikel tidak melompat jauh jika tab ditinggalkan
+    if (deltaTime > 3) deltaTime = 3;
+    if (isNaN(deltaTime)) deltaTime = 1; 
+
+    if (particles.filter(p => p instanceof Firefly).length < 40) {
+        particles.push(new Firefly());
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        
+        // Lempar nilai deltaTime ke fungsi update
+        p.update(deltaTime);
+        p.draw();
+
+        if (p.life <= 0 || p.size <= 0 || p.y < -10) {
+            particles.splice(i, 1);
+        }
+    }
+    
+    requestAnimationFrame(animateParticles);
 }
 
 // ==========================================
@@ -490,32 +634,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     }
 });
-
-// --- LOGIKA SPAWN BINTANG (STAR TRAIL) ---
-const spawnStar = (x, y) => {
-    const star = document.createElement('div');
-    star.className = 'magic-star';
-    
-    // Posisi tepat di ujung kursor/jari
-    star.style.left = x + 'px';
-    star.style.top = y + 'px';
-    
-    // --- RANDOM SIZE: Jangkauan lebih luas (4px sampai 18px) ---
-    const size = Math.random() * 14 + 4;
-    star.style.width = size + 'px';
-    star.style.height = size + 'px';
-
-    // --- RANDOM COLOR: Putih ke Kuning Langsat/Krem ---
-    const colors = ['#ffffff', '#fffde7', '#fff9c4', '#fff59d', '#fff176'];
-    star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-
-    document.body.appendChild(star);
-
-    // Hapus dari DOM setelah animasi selesai (1 detik)
-    setTimeout(() => {
-        star.remove();
-    }, 2000);
-};
 
 // Variabel untuk melacak kecepatan kursor/jari
 let lastX = 0;
