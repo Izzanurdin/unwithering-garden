@@ -81,6 +81,34 @@ const lilyProfiles = [
     },
 
     { 
+        name: 'Tiger Lily',
+        vein: '#b71c1c',  /* Merah gelap kecokelatan di pusat */
+        inner: '#ff5722', /* Oranye terang yang menyala */
+        outer: '#ffcc80'  /* Peach/Oranye pastel lembut di ujung kelopak */
+    },
+
+    { 
+        name: 'Midnight Violet',
+        vein: '#311b92',  /* Ungu pekat nyaris hitam */
+        inner: '#673ab7', /* Ungu klasik yang kuat */
+        outer: '#d1c4e9'  /* Lilac / ungu pudar di pinggiran */
+    },
+
+    { 
+        name: 'Starry Blue',
+        vein: '#01579b',  /* Biru samudra gelap */
+        inner: '#03a9f4', /* Biru langit cerah (Cyan) */
+        outer: '#e1f5fe'  /* Putih kebiruan bercahaya */
+    },
+
+    { 
+        name: 'Golden Ray',
+        vein: '#e65100',  /* Oranye gelap untuk kedalaman */
+        inner: '#ffc107', /* Kuning emas murni */
+        outer: '#fffde7'  /* Kuning pucat/putih gading */
+    },
+
+    { 
         inner: '#f06292', // Pink vibran di area dalam (dekat tulang)
         outer: '#ffffff', // Putih bersih di area luar/tepian
         vein: '#ad1457',  // Tulang kelopak pink tua agar kontras
