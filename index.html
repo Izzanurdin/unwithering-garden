@@ -26,11 +26,24 @@
 
     <section id="garden-section" style="display: none;">
         <div id="garden" class="garden"></div>
+
+        <div id="garden-hint" class="garden-hint">        </div>
         
         <div class="controls">
             <button id="backBtn" class="btn" data-target="landing-section">← GO BACK</button>
             <button id="saveBtn" class="btn">SAVE PICTURE</button>
             <button id="resetBtn" class="btn">RESET GARDEN</button>
+        </div>
+
+        <div id="secret-modal" class="secret-modal">
+            <div class="secret-content">
+                <h3>PLANT A SECRET MESSAGE</h3>
+                <input type="text" id="secret-input" placeholder="Whisper something to this flower..." maxlength="30" autocomplete="off">
+                <div class="secret-actions">
+                    <button id="secret-cancel" class="btn-small">CANCEL</button>
+                    <button id="secret-submit" class="btn-small">PLANT</button>
+                </div>
+            </div>
         </div>
     </section>
     <script src="script.js"></script>

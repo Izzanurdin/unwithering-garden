@@ -295,6 +295,113 @@ p {
     filter: drop-shadow(0 0 8px var(--glow-color)) drop-shadow(0 0 25px var(--outer-glow));
 }
 
+/* --- UI KOTAK PESAN RAHASIA --- */
+.secret-modal {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    display: none; /* Sembunyi secara default */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.secret-content {
+    background: radial-gradient(circle at center, #1e3d2f 0%, #0a150a 100%);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(76, 175, 80, 0.2);
+    width: 90%;
+    max-width: 400px;
+}
+
+.secret-content h3 {
+    font-family: 'Cinzel', serif;
+    color: #fff9c4;
+    margin-top: 0;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+
+#secret-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #4CAF50;
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 25px;
+}
+
+#secret-input:focus { outline: none; border-bottom-color: #fff9c4; }
+
+.secret-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-small {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-small:hover { background: #fff; color: #000; }
+
+/* --- TEKS BISIKAN PADA BUNGA --- */
+.floating-secret-message {
+    position: absolute;
+    color: #fffde7;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    pointer-events: none;
+    z-index: 50; /* Melayang di atas bunga */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6); /* Sedikit bayangan agar mudah dibaca */
+    white-space: nowrap; /* Teks tidak terpotong ke bawah */
+    animation: floatMessage 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Teks muncul saat bunga disentuh/angin lewat */
+.lily-coded.show-message .secret-text {
+    animation: floatMessage 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+
+.garden-hint {
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-align: center;
+    pointer-events: none; /* Agar tidak menghalangi jika layar diklik */
+    z-index: 20;
+    opacity: 0; /* Sengaja kita sembunyikan dulu di awal */
+    transition: opacity 2s ease-in-out; /* Efek memudar yang sangat pelan dan halus */
+    width: 80%;
+    max-width: 400px;
+}
 
 /* --- ANIMATIONS --- */
 
@@ -311,6 +418,23 @@ p {
 @keyframes poof {
     0% { transform: translate(-50%, -50%) scale(var(--scale)) rotate(0deg); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(0) rotate(30deg); opacity: 0; }
+}
+
+@keyframes floatMessage {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -20px) scale(0.9) rotate(0deg);
+    }
+    15% {
+        opacity: 1; 
+    }
+    50% {
+        opacity: 1; 
+    }
+    100% {
+        opacity: 0; 
+        transform: translate(-50%, -80px) scale(1) rotate(3deg); /* Terus melayang ke atas langit */
+    }
 }
 
 .lily-coded.fade-out {

@@ -2,6 +2,8 @@
 // 1. DATA & KONFIGURASI
 // ==========================================
 
+const currentPatchNote = "Hold your touch for a few seconds to whisper a secret...";
+
 // Profil warna untuk 3 Gerbera permanen
 const gerberaColors = [
     { 
@@ -448,6 +450,21 @@ window.addEventListener('DOMContentLoaded', () => {
                 // 4. Buka Tirai Kembali
                 transitionEl.classList.remove('fade-out');
                 transitionEl.classList.add('fade-in');
+
+                // --- TAMBAHKAN LOGIKA HINT DI SINI ---
+                const hintEl = document.getElementById('garden-hint');
+                if (hintEl) {
+                    hintEl.innerText = currentPatchNote;
+                    // 1. Munculkan teksnya secara perlahan 1 detik setelah masuk taman
+                    setTimeout(() => {
+                        hintEl.style.opacity = '1';
+                    }, 1000);
+
+                    // 2. Hilangkan kembali teksnya secara perlahan setelah 7 detik 
+                    setTimeout(() => {
+                        hintEl.style.opacity = '0';
+                    }, 8000);
+                }
                 
             }, 800); // Sesuai durasi CSS transition
         });
@@ -520,158 +537,199 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Logika Klik Menanam Lily
     if (garden) {
-       garden.addEventListener('click', (e) => {
-        if (e.target.closest('.btn')) return;
+       const modal = document.getElementById('secret-modal');
+        const secretInput = document.getElementById('secret-input');
+        const secretSubmit = document.getElementById('secret-submit');
+        const secretCancel = document.getElementById('secret-cancel');
 
-        const rect = garden.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        let pressTimer;
+        let isPressing = false;
+        let targetX = 0, targetY = 0;
 
-        // Logika Anti-Tumpuk (Tetap Sama)
-        const gerberas = document.querySelectorAll('.gerbera-coded');
-        let isTooClose = false;
-        gerberas.forEach(gerbera => {
-            const gRect = gerbera.getBoundingClientRect();
-            const gX = (gRect.left + gRect.width / 2) - rect.left;
-            const gY = (gRect.top + gRect.height / 2) - rect.top;
-            const distance = Math.sqrt(Math.pow(x - gX, 2) + Math.pow(y - gY, 2));
-            if (distance < (window.innerWidth < 768 ? 55 : 100)) isTooClose = true;
-        });
-
-            if (isTooClose) return;
-
-           // --- MULAI MERAKIT LILY Vektor ---
-            const svg = document.createElementNS(svgNS, 'svg');
-            svg.setAttribute('xmlns', svgNS);
-            svg.setAttribute('class', 'lily-coded');
-            svg.setAttribute('viewBox', '0 0 100 100');
-            svg.style.overflow = 'visible';
-            svg.style.left = x + 'px';
-            svg.style.top = y + 'px';
-
-            // Randomisasi Skala Utuh Bunga (Sama seperti sebelumnya)
-            const scale = (Math.random() * 0.5 + 0.6).toFixed(2);
-            svg.style.setProperty('--scale', scale);
-
-            // Ambil profil warna acak
-            const profile = lilyProfiles[Math.floor(Math.random() * lilyProfiles.length)];
-
-            // Definisikan Gradasi Kelopak Lily
-            const defs = document.createElementNS(svgNS, 'defs');
-            const gradId = `grad-lily-${Math.random().toString(36).substr(2, 5)}`;
-            const radGrad = document.createElementNS(svgNS, 'radialGradient');
-            radGrad.setAttribute('id', gradId);
-            radGrad.setAttribute('cx', '50%'); radGrad.setAttribute('cy', '100%'); // Titik pusat di pangkal
-            radGrad.setAttribute('r', '100%');
+        // Fungsi saat sentuhan dimulai
+        const startPress = (e) => {
+            // Abaikan jika mengeklik tombol UI
+            if (e.target.closest('.btn') || e.target.closest('.secret-modal')) return;
             
-            radGrad.innerHTML = `
-                <stop offset="0%" stop-color="${profile.vein}" />
-                <stop offset="30%" stop-color="${profile.inner}" />
-                <stop offset="80%" stop-color="${profile.outer}" />
-            `;
-            defs.appendChild(radGrad);
-            svg.appendChild(defs);
+            isPressing = true;
+            const rect = garden.getBoundingClientRect();
+            
+            // Dapatkan koordinat untuk PC maupun HP
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            targetX = clientX - rect.left;
+            targetY = clientY - rect.top;
 
-            // Grup Kelopak berpusat di tengah kanvas
-            const petalGroup = document.createElementNS(svgNS, 'g');
-            petalGroup.setAttribute('transform', 'translate(50, 50)');
-
-            // FUNGSI MEMBUAT KELOPAK LILY REALISTIS
-            const createLilyPetal = (angle, isInner) => {
-            const p = document.createElementNS(svgNS, 'path');
-            
-            // Randomisasi lekukan: membuat ujung bunga sedikit meliuk kiri/kanan acak
-            const bend = (Math.random() * 10) - 5; 
-            const length = isInner ? 40 : 45; // Kelopak dalam lebih pendek
-            const width = isInner ? 12 : 16;  // Kelopak dalam lebih ramping
-            
-            // M = Titik pangkal (0,0)
-            // C = Cubic Bezier: Titik kontrol 1 (Kiri bawah), Titik kontrol 2 (Kiri atas), Titik Akhir (Ujung bunga)
-            // Titik kembali ke bawah dengan kurva sisi kanan
-            const d = `
-                M 0,0 
-                C -${width},-${length * 0.3} -${width * 0.8},-${length * 0.8} ${bend},-${length}
-                C ${width * 0.8},-${length * 0.8} ${width},-${length * 0.3} 0,0 Z
-            `;
-            
-            p.setAttribute('d', d);
-            p.setAttribute('fill', `url(#${gradId})`);
-            
-            // Randomisasi rotasi kelopak sedikit agar natural
-            const randomRotation = angle + (Math.random() * 10 - 5);
-            p.setAttribute('transform', `rotate(${randomRotation})`);
-            
-            // Beri efek ketebalan bayangan di dalam kelopak
-            // p.style.filter = 'drop-shadow(0px 2px 3px rgba(0,0,0,0.2))';
-            
-            return p;
+            // Mulai timer 1 detik untuk Long Press
+            pressTimer = setTimeout(() => {
+                if (isPressing) {
+                    isPressing = false; // Batalkan klik biasa
+                    modal.style.display = 'flex';
+                    setTimeout(() => modal.style.opacity = '1', 10);
+                    secretInput.value = '';
+                    secretInput.focus();
+                }
+            }, 1000); 
         };
 
-            // 1. Kelopak Luar (3 Buah)
-        for (let i = 0; i < 3; i++) {
-            petalGroup.appendChild(createLilyPetal(i * 120, false));
-        }
+        // Fungsi saat sentuhan dilepas
+        const endPress = (e) => {
+            if (isPressing) {
+                // Jika dilepas SEBELUM 1 detik, berarti klik biasa (tanam Lily tanpa pesan)
+                clearTimeout(pressTimer);
+                isPressing = false;
+                plantLily(targetX, targetY, null);
+            }
+        };
 
-        // 2. Kelopak Dalam (3 Buah, diputar 60 derajat)
-        for (let i = 0; i < 3; i++) {
-            petalGroup.appendChild(createLilyPetal(i * 120 + 60, true));
-        }
-        svg.appendChild(petalGroup);
+        // Pasang sensor
+        garden.addEventListener('mousedown', startPress);
+        garden.addEventListener('touchstart', startPress, {passive: true});
+        window.addEventListener('mouseup', endPress);
+        window.addEventListener('touchend', endPress);
 
-        // 3. Benang Sari & Kepala Sari (Organ Bunga)
-        const stamenGroup = document.createElementNS(svgNS, 'g');
-        stamenGroup.setAttribute('transform', 'translate(50, 50)');
-        
-        // Randomisasi jumlah benang sari 5 hingga 8[cite: 3]
-        const numStamens = Math.floor(Math.random() * 4) + 5; 
-        const angleStep = 360 / numStamens;
+        // Aksi Tombol Batal
+        secretCancel.addEventListener('click', () => {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.style.display = 'none', 400);
+        });
 
-        for (let i = 0; i < numStamens; i++) {
-            const sLength = Math.random() * 15 + 15;
-            const sAngle = (i * angleStep) + (Math.random() * 30 - 15);
-            const bend = Math.random() * 10 - 5; // Filamen melengkung
-
-            // Tangkai (Filament)
-            const filament = document.createElementNS(svgNS, 'path');
-            filament.setAttribute('d', `M 0,0 Q ${bend},-${sLength/2} 0,-${sLength}`);
-            filament.setAttribute('stroke', '#8bc34a');
-            filament.setAttribute('stroke-width', '1.5');
-            filament.setAttribute('fill', 'none');
-            filament.setAttribute('transform', `rotate(${sAngle})`);
-            stamenGroup.appendChild(filament);
-
-            // Kepala Sari (Anther) - Bentuk elips organik
-            const anther = document.createElementNS(svgNS, 'ellipse');
-            anther.setAttribute('rx', '2.5');
-            anther.setAttribute('ry', '4');
-            anther.setAttribute('fill', '#5d4037');
-            // Menempatkan anther tepat di ujung filament dengan rotasi acak
-            anther.setAttribute('transform', `rotate(${sAngle}) translate(0, -${sLength}) rotate(${Math.random() * 60 - 30})`);
-            stamenGroup.appendChild(anther);
-        }
-        svg.appendChild(stamenGroup);
-
-        // 4. Inti Tengah (Pistil / Putik)
-        const center = document.createElementNS(svgNS, 'circle');
-        center.setAttribute('cx', '50');
-        center.setAttribute('cy', '50');
-        center.setAttribute('r', '4');
-        center.setAttribute('fill', '#fff59d');
-        svg.appendChild(center);
-
-
-        svg.dataset.isBlooming = "true";
-        
-        // Hapus tanda tersebut setelah 700ms (sesuai durasi animasi bloom di CSS)
-        setTimeout(() => {
-            svg.dataset.isBlooming = "false";
-        }, 700);
-
-        garden.appendChild(svg);
-        setTimeout(updateFlowerRegistry, 50);
-    });
+        // Aksi Tombol Tanam Pesan
+        secretSubmit.addEventListener('click', () => {
+            const msg = secretInput.value.trim();
+            if (msg) {
+                plantLily(targetX, targetY, msg);
+            }
+            modal.style.opacity = '0';
+            setTimeout(() => modal.style.display = 'none', 400);
+        });
     }
 });
+
+// ==========================================
+// FUNGSI UTAMA MERAKIT BUNGA LILY
+// ==========================================
+function plantLily(x, y, secretMessage) {
+    const gardenContainer = document.getElementById('garden');
+    const rect = gardenContainer.getBoundingClientRect();
+
+    // Logika Anti-Tumpuk dengan Gerbera
+    const gerberas = document.querySelectorAll('.gerbera-coded');
+    let isTooClose = false;
+    gerberas.forEach(gerbera => {
+        const gRect = gerbera.getBoundingClientRect();
+        const gX = (gRect.left + gRect.width / 2) - rect.left;
+        const gY = (gRect.top + gRect.height / 2) - rect.top;
+        const distance = Math.sqrt(Math.pow(x - gX, 2) + Math.pow(y - gY, 2));
+        if (distance < (window.innerWidth < 768 ? 55 : 100)) isTooClose = true;
+    });
+
+    if (isTooClose) return;
+
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('xmlns', svgNS);
+    svg.setAttribute('class', 'lily-coded');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.style.overflow = 'visible';
+    svg.style.left = x + 'px';
+    svg.style.top = y + 'px';
+
+    const scale = (Math.random() * 0.5 + 0.6).toFixed(2);
+    svg.style.setProperty('--scale', scale);
+
+    const profile = lilyProfiles[Math.floor(Math.random() * lilyProfiles.length)];
+
+    const defs = document.createElementNS(svgNS, 'defs');
+    const gradId = `grad-lily-${Math.random().toString(36).substr(2, 5)}`;
+    const radGrad = document.createElementNS(svgNS, 'radialGradient');
+    radGrad.setAttribute('id', gradId);
+    radGrad.setAttribute('cx', '50%'); radGrad.setAttribute('cy', '100%'); 
+    radGrad.setAttribute('r', '100%');
+    
+    radGrad.innerHTML = `
+        <stop offset="0%" stop-color="${profile.vein}" />
+        <stop offset="30%" stop-color="${profile.inner}" />
+        <stop offset="80%" stop-color="${profile.outer}" />
+    `;
+    defs.appendChild(radGrad);
+    svg.appendChild(defs);
+
+    const petalGroup = document.createElementNS(svgNS, 'g');
+    petalGroup.setAttribute('transform', 'translate(50, 50)');
+
+    const createLilyPetal = (angle, isInner) => {
+        const p = document.createElementNS(svgNS, 'path');
+        const bend = (Math.random() * 10) - 5; 
+        const length = isInner ? 40 : 45; 
+        const width = isInner ? 12 : 16;  
+        
+        const d = `
+            M 0,0 
+            C -${width},-${length * 0.3} -${width * 0.8},-${length * 0.8} ${bend},-${length}
+            C ${width * 0.8},-${length * 0.8} ${width},-${length * 0.3} 0,0 Z
+        `;
+        
+        p.setAttribute('d', d);
+        p.setAttribute('fill', `url(#${gradId})`);
+        
+        const randomRotation = angle + (Math.random() * 10 - 5);
+        p.setAttribute('transform', `rotate(${randomRotation})`);
+        return p;
+    };
+
+    for (let i = 0; i < 3; i++) petalGroup.appendChild(createLilyPetal(i * 120, false));
+    for (let i = 0; i < 3; i++) petalGroup.appendChild(createLilyPetal(i * 120 + 60, true));
+    svg.appendChild(petalGroup);
+
+    const stamenGroup = document.createElementNS(svgNS, 'g');
+    stamenGroup.setAttribute('transform', 'translate(50, 50)');
+    
+    const numStamens = Math.floor(Math.random() * 4) + 5; 
+    const angleStep = 360 / numStamens;
+
+    for (let i = 0; i < numStamens; i++) {
+        const sLength = Math.random() * 15 + 15;
+        const sAngle = (i * angleStep) + (Math.random() * 30 - 15);
+        const bend = Math.random() * 10 - 5; 
+
+        const filament = document.createElementNS(svgNS, 'path');
+        filament.setAttribute('d', `M 0,0 Q ${bend},-${sLength/2} 0,-${sLength}`);
+        filament.setAttribute('stroke', '#8bc34a');
+        filament.setAttribute('stroke-width', '1.5');
+        filament.setAttribute('fill', 'none');
+        filament.setAttribute('transform', `rotate(${sAngle})`);
+        stamenGroup.appendChild(filament);
+
+        const anther = document.createElementNS(svgNS, 'ellipse');
+        anther.setAttribute('rx', '2.5');
+        anther.setAttribute('ry', '4');
+        anther.setAttribute('fill', '#5d4037');
+        anther.setAttribute('transform', `rotate(${sAngle}) translate(0, -${sLength}) rotate(${Math.random() * 60 - 30})`);
+        stamenGroup.appendChild(anther);
+    }
+    svg.appendChild(stamenGroup);
+
+    const center = document.createElementNS(svgNS, 'circle');
+    center.setAttribute('cx', '50');
+    center.setAttribute('cy', '50');
+    center.setAttribute('r', '4');
+    center.setAttribute('fill', '#fff59d');
+    svg.appendChild(center);
+
+    // KUNCI: JIKA ADA PESAN RAHASIA, SIMPAN SEBAGAI DATA & BERI AURA EMAS
+    if (secretMessage) {
+        svg.dataset.secretMessage = secretMessage;
+        // Aura emas yang menandakan ini adalah bunga memori
+        svg.style.filter = 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 25px rgba(255, 215, 0, 0.5))';
+    }
+
+    svg.dataset.isBlooming = "true";
+    setTimeout(() => { svg.dataset.isBlooming = "false"; }, 700);
+
+    gardenContainer.appendChild(svg);
+    setTimeout(updateFlowerRegistry, 50);
+}
 
 // Variabel untuk melacak kecepatan kursor/jari
 let lastX = 0;
@@ -732,6 +790,32 @@ function applyWindForce(currentX, currentY) {
                     if (element.style.animation !== 'none') {
                         element.style.animation = 'none';
                     }
+                        
+                    // Cek apakah bunga ini punya pesan, dan apakah pesannya sedang tidak diterbangkan
+                    if (element.dataset.secretMessage && !element.classList.contains('show-message')) {
+                        
+                        element.classList.add('show-message'); // Kunci sementara agar tidak spam
+
+                        // 1. Buat elemen teks baru yang TERPISAH dari gambar bunga
+                        const msgEl = document.createElement('div');
+                        msgEl.className = 'floating-secret-message';
+                        msgEl.innerText = element.dataset.secretMessage;
+
+                        // 2. Tempelkan posisinya di koordinat yang sama dengan bunga saat ini
+                        msgEl.style.left = element.style.left;
+                        msgEl.style.top = element.style.top;
+
+                        // 3. Lepaskan teksnya langsung ke halaman taman (bukan ke dalam bunga)
+                        document.getElementById('garden').appendChild(msgEl);
+
+                        // 4. Bersihkan jejak teks tersebut setelah 3 detik agar taman tidak lag
+                        setTimeout(() => {
+                            if (msgEl) msgEl.remove();
+                            element.classList.remove('show-message'); // Bunga siap digoyang lagi
+                        }, 3000);
+                        
+                    }
+                    
 
                     const swayAngle = Math.max(-8, Math.min(8, speedX * 5)); 
                     const swayX = Math.max(-6, Math.min(6, speedX * 3));
