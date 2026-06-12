@@ -313,6 +313,7 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     if (!gardenContainer || !colorProfile) return;
 
     const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('xmlns', svgNS);
     svg.setAttribute('class', 'gerbera-coded');
     svg.setAttribute('viewBox', '0 0 100 100');
     svg.style.left = xPercent + '%';
@@ -324,7 +325,7 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     svg.style.overflow = 'visible';
     svg.style.setProperty('--glow-color', colorProfile.glow);
     svg.style.setProperty('--outer-glow', colorProfile.outerGlow);
-    
+
     // Setup gradient untuk kelopak SVG
     const defs = document.createElementNS(svgNS, 'defs');
     const gradId = `grad-gerbera-${Math.random().toString(36).substr(2, 5)}`;
@@ -404,6 +405,7 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Ambil tombol
     const accessBtn = document.getElementById('accessBtn');
+    const saveBtn = document.getElementById('saveBtn');
     const backBtn = document.getElementById('backBtn');
     const transitionEl = document.querySelector('.page-transition');
     // Tirai dibuka saat masuk halaman
@@ -470,6 +472,37 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Logika Tombol Save Picture
+ if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+        // 1. Sembunyikan UI tombol sementara
+        const controls = document.querySelector('.controls');
+        const originalDisplay = controls.style.display;
+        controls.style.display = 'none';
+
+        // 2. Jepret layar dengan mesin modern (htmlToImage)
+        htmlToImage.toPng(document.body, {
+            quality: 1.0,
+            backgroundColor: '#0a150a' // Pastikan latar gelap ikut tertangkap
+        })
+        .then(function (dataUrl) {
+            // 3. Kembalikan tombol UI
+            controls.style.display = originalDisplay;
+
+            // 4. Unduh hasilnya
+            const link = document.createElement('a');
+            link.download = 'Our-Unwithering-Garden.png';
+            link.href = dataUrl;
+            link.click();
+        })
+        .catch(function (error) {
+            console.error('Error memotret layar:', error);
+            controls.style.display = originalDisplay;
+            alert('Maaf, gagal menyimpan gambar. Coba lagi ya!');
+        });
+    });
+}
+
     // Logika Tombol Reset (dengan animasi Poof)
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
@@ -508,6 +541,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
            // --- MULAI MERAKIT LILY Vektor ---
             const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('xmlns', svgNS);
             svg.setAttribute('class', 'lily-coded');
             svg.setAttribute('viewBox', '0 0 100 100');
             svg.style.overflow = 'visible';

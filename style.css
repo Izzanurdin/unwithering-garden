@@ -164,6 +164,14 @@ p {
     z-index: 30;
 }
 
+#saveBtn {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%); /* Menarik tombol persis ke tengah */
+    z-index: 30; /* Memastikan posisinya di atas kanvas taman */
+}
+
 .fullscreen-toggle {
     position: fixed;
     top: 20px;
@@ -186,20 +194,19 @@ p {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%);
+    
+    /* GABUNGAN 3 LAPIS CAHAYA MAGIS */
+    background: 
+        /* 1. Bias Pink di pojok kanan atas (intensitas dinaikkan) */
+        radial-gradient(circle at 85% 15%, rgba(216, 27, 96, 0.25) 0%, transparent 60%),
+        /* 2. Bias Hijau di pojok kiri bawah (intensitas dinaikkan) */
+        radial-gradient(circle at 15% 85%, rgba(76, 175, 80, 0.15) 0%, transparent 60%),
+        /* 3. Latar dasar zamrud gelap di tengah */
+        radial-gradient(circle at 50% 50%, #0d2116 0%, #020503 80%, #000000 100%);
+    
     cursor: pointer;
     z-index: 1;
     touch-action: manipulation;
-}
-
-.garden::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
-    
-    /* z-index: 0;
-    pointer-events: none; */
 }
 
 /* --- OBJECT: LILY --- */
@@ -320,14 +327,32 @@ p {
         padding: 10px;
     }
 
-    #backBtn, #resetBtn {
+    .controls {
         position: absolute;
-        width: 42vw; 
-        bottom: 80px; 
-        margin-bottom: env(safe-area-inset-bottom);
-        font-size: 11px; /* Sedikit lebih kecil agar teks tidak overflow */
-        height: 50px;   /* Konsisten namun kompak */
-        padding: 0 10px;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 88vw; /* Lebar total area tombol */
+        max-width: 350px;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Membagi baris bawah jadi 2 kolom sama besar */
+        gap: 12px; /* Jarak rapi antar tombol */
+        z-index: 30;
+    }
+
+    /* Menetralisir posisi melayang dari versi PC */
+    #saveBtn, #backBtn, #resetBtn {
+        position: relative;
+        bottom: auto; left: auto; right: auto;
+        transform: none;
+        width: 100%;
+        margin: 0;
+    }
+
+    /* Memaksa tombol Save untuk memakan ruang penuh (2 kolom) di baris pertama */
+    #saveBtn {
+        grid-column: 1 / -1; 
+        order: -1;
     }
 
     .gerbera-coded {
@@ -346,11 +371,4 @@ p {
         height: 18px;
     }
     
-    #backBtn {
-        left: 5vw;
-    }
-
-    #resetBtn {
-        right: 5vw;
-    }
 }
