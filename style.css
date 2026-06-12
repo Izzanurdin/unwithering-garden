@@ -71,7 +71,11 @@ section {
 }
 
 #garden-section {
-    background: radial-gradient(circle at center, #1e3d2f 0%, #0f220a 60%, #050a05 100%); 
+    background: linear-gradient(-45deg, #0a2610, #2d0e3d, #122c1d, #250928);
+    background-size: 400% 400%; /* Memperbesar gradien melebihi layar */
+    animation: auroraSky 15s ease infinite; /* Bergerak sangat pelan berulang-ulang */
+    position: relative; 
+    overflow: hidden; 
 }
 
 .container {
@@ -201,12 +205,24 @@ p {
         radial-gradient(circle at 85% 15%, rgba(216, 27, 96, 0.25) 0%, transparent 60%),
         /* 2. Bias Hijau di pojok kiri bawah (intensitas dinaikkan) */
         radial-gradient(circle at 15% 85%, rgba(76, 175, 80, 0.15) 0%, transparent 60%),
-        /* 3. Latar dasar zamrud gelap di tengah */
-        radial-gradient(circle at 50% 50%, #0d2116 0%, #020503 80%, #000000 100%);
+         3. Bias Biru di tengah (intensitas dinaikkan)
+        radial-gradient(circle at 50% 50%, rgba(33, 150, 243, 0.1) 0%, transparent 70%); 
     
     cursor: pointer;
     z-index: 1;
     touch-action: manipulation;
+}
+
+.garden::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    
+    /* Bayangan mengarah ke dalam, sangat pekat di pinggir dan transparan di tengah */
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.95);
+    
+    pointer-events: none; /* SANGAT PENTING: Agar bayangan ini tidak menghalangi sentuhan ke bunga */
+    z-index: 10;
 }
 
 /* --- OBJECT: LILY --- */
@@ -366,14 +382,19 @@ p {
 /* --- TEKS BISIKAN PADA BUNGA --- */
 .floating-secret-message {
     position: absolute;
-    color: #fffde7;
+    color: #fff9c4;
     font-family: 'Playfair Display', serif;
-    font-size: 14px;
+    font-size: 16px; /* Sedikit diperbesar dari 14px */
+    font-weight: 500; /* Ditebalkan sedikit agar tidak hilang ditelan cahaya */
     font-style: italic;
+    letter-spacing: 1.5px; /* Memberi jarak antar huruf agar terkesan puitis */
     text-align: center;
     pointer-events: none;
     z-index: 50; /* Melayang di atas bunga */
-    text-shadow: 0 2px 4px rgba(0,0,0,0.6); /* Sedikit bayangan agar mudah dibaca */
+    text-shadow: 
+        0 2px 4px rgba(0,0,0,0.9), /* Bayangan hitam dasar */
+        0 0 10px rgba(255, 215, 0, 0.8), /* Pendaran emas inti */
+        0 0 25px rgba(255, 215, 0, 0.5); /* Pendaran emas luar yang menyebar */    
     white-space: nowrap; /* Teks tidak terpotong ke bawah */
     animation: floatMessage 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
@@ -404,6 +425,12 @@ p {
 }
 
 /* --- ANIMATIONS --- */
+
+@keyframes auroraSky {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
 @keyframes lily-breathe {
     0% { transform: translate(-50%, -50%) scale(calc(var(--scale) + 0.03)) rotate(0deg); }
