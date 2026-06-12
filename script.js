@@ -28,6 +28,7 @@ const gerberaColors = [
         glow: 'rgba(255, 220, 30, 0.7)',
         outerGlow: 'rgba(255, 215, 0, 0.2)'
     }
+
 ];
 
 // Profil warna untuk bunga Lily yang bisa ditanam
@@ -389,9 +390,9 @@ function renderGerberas() {
     if (document.querySelectorAll('.gerbera-coded').length > 0) return;
 
     const shuffledColors = shuffleArray(gerberaColors);
-    setTimeout(() => createPermanentGerbera(30, 45, shuffledColors[0]), 100);
-    setTimeout(() => createPermanentGerbera(70, 35, shuffledColors[1]), 500);
-    setTimeout(() => createPermanentGerbera(55, 70, shuffledColors[2]), 900);
+    setTimeout(() => createPermanentGerbera(50, 15, shuffledColors[0]), 100);  // Puncak (Tengah Atas)
+    setTimeout(() => createPermanentGerbera(15, 82, shuffledColors[1]), 400);  // Kiri Bawah
+    setTimeout(() => createPermanentGerbera(85, 82, shuffledColors[2]), 700);  // Kanan Bawah
 }
 
 // ==========================================
@@ -419,9 +420,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // Tanam 3 Gerbera Permanen (Hanya di halaman garden)
     if (garden) {
         const shuffledColors = shuffleArray(gerberaColors);
-        createPermanentGerbera(20, 30, shuffledColors[0]);
-        createPermanentGerbera(50, 50, shuffledColors[1]);
-        createPermanentGerbera(80, 25, shuffledColors[2]);
+        createPermanentGerbera(50, 15, shuffledColors[0]); // Puncak (Tengah Atas)
+        createPermanentGerbera(15, 82, shuffledColors[1]); // Kiri Bawah
+        createPermanentGerbera(85, 82, shuffledColors[2]); // Kanan Bawah
     }
 
     // Navigasi Antar Halaman

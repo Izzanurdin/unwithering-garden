@@ -284,8 +284,8 @@ p {
 /* --- OBJECT: GERBERA --- */
 .gerbera-coded {
     position: absolute;
-    width: 120px;
-    height: 120px;
+    width: 85px;
+    height: 85px;
     z-index: 5;
     animation: sway 4s ease-in-out infinite;
     transform: translate(-50%, -50%) translateZ(0); 
@@ -356,8 +356,8 @@ p {
     }
 
     .gerbera-coded {
-        width: 70px;
-        height: 70px;
+        width: 85px !important;
+        height: 85px !important;
     }
 
     .gerbera-coded .petal {
