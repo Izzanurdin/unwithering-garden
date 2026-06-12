@@ -322,8 +322,9 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     svg.style.position = 'absolute';
     svg.style.transform = 'translate(-50%, -50%)';
     svg.style.overflow = 'visible';
-    svg.style.setProperty('--glow-color', colorProfile.main);
-
+    svg.style.setProperty('--glow-color', colorProfile.glow);
+    svg.style.setProperty('--outer-glow', colorProfile.outerGlow);
+    
     // Setup gradient untuk kelopak SVG
     const defs = document.createElementNS(svgNS, 'defs');
     const gradId = `grad-gerbera-${Math.random().toString(36).substr(2, 5)}`;
@@ -376,6 +377,7 @@ function createPermanentGerbera(xPercent, yPercent, colorProfile) {
     svg.appendChild(center);
 
     gardenContainer.appendChild(svg);
+    setTimeout(updateFlowerRegistry, 50);
 }
 
 function renderGerberas() {
@@ -631,6 +633,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 700);
 
         garden.appendChild(svg);
+        setTimeout(updateFlowerRegistry, 50);
     });
     }
 });
@@ -639,6 +642,31 @@ window.addEventListener('DOMContentLoaded', () => {
 let lastX = 0;
 let lastY = 0;
 let lastTime = Date.now();
+
+// ==========================================
+// SISTEM CACHE (ANTI-LAYOUT THRASHING)
+// ==========================================
+let flowerRegistry = []; // Ini adalah "Buku Alamat" kita
+
+function updateFlowerRegistry() {
+    const flowers = document.querySelectorAll('.lily-coded, .gerbera-coded');
+    flowerRegistry = Array.from(flowers).map(flower => {
+        const rect = flower.getBoundingClientRect();
+        return {
+            element: flower,
+            // Kita ukur dan simpan posisinya SEKALI saja
+            x: rect.left + rect.width / 2, 
+            y: rect.top + rect.height / 2,
+            scale: parseFloat(flower.style.getPropertyValue('--scale')) || 1
+        };
+    });
+}
+
+// Jika layar di-resize atau diputar (rotate HP), ukur ulang posisinya
+window.addEventListener('resize', () => {
+    clearTimeout(window.flowerResizeTimer);
+    window.flowerResizeTimer = setTimeout(updateFlowerRegistry, 200);
+});
 
 // Fungsi terpusat untuk meniup bunga
 function applyWindForce(currentX, currentY) {
@@ -656,38 +684,33 @@ function applyWindForce(currentX, currentY) {
         const speed = Math.sqrt(speedX * speedX + speedY * speedY);
 
        if (speed > 0.15) { 
-            const flowers = document.querySelectorAll('.lily-coded, .gerbera-coded');
-            
-            flowers.forEach(flower => {
-                if (flower.dataset.isBlooming === "true") return;
-                const rect = flower.getBoundingClientRect();
-                const flowerX = rect.left + rect.width / 2;
-                const flowerY = rect.top + rect.height / 2;
-                const distance = Math.sqrt(Math.pow(currentX - flowerX, 2) + Math.pow(currentY - flowerY, 2));
+            // KUNCI OPTIMASI: Kita loop array 'flowerRegistry', BUKAN querySelectorAll!
+            flowerRegistry.forEach(flowerData => {
+                const { element, x, y, scale } = flowerData; // Ambil data dari buku alamat
+
+                if (element.dataset.isBlooming === "true") return;
+
+                // Hitung jarak murni menggunakan matematika tanpa menyentuh DOM browser
+                const distance = Math.sqrt(Math.pow(currentX - x, 2) + Math.pow(currentY - y, 2));
 
                 if (distance < 140) {
-                    // KUNCI 1: Hentikan animasi CSS agar tidak berebut kontrol dengan JS
-                    if (flower.style.animation !== 'none') {
-                        flower.style.animation = 'none';
+                    if (element.style.animation !== 'none') {
+                        element.style.animation = 'none';
                     }
 
-                    const scale = flower.style.getPropertyValue('--scale') || 1;
-                    
-                    // KUNCI 2: Gerakan dibuat sangat halus (maksimal rotasi hanya 8 derajat)
                     const swayAngle = Math.max(-8, Math.min(8, speedX * 5)); 
                     const swayX = Math.max(-6, Math.min(6, speedX * 3));
                     const swayY = Math.max(-6, Math.min(6, speedY * 3));
 
-                    clearTimeout(flower.windTimeout);
+                    clearTimeout(element.windTimeout);
                     
-                    // KUNCI 3: Kita targetkan KESELURUHAN BUNGA, sehingga putik dan kelopak bergerak bersamaan
-                    flower.style.transition = 'transform 0.25s ease-out';
-                    flower.style.transform = `translate(calc(-50% + ${swayX}px), calc(-50% + ${swayY}px)) scale(${scale}) rotate(${swayAngle}deg)`;
+                    element.style.transition = 'transform 0.25s ease-out';
+                    // Sisipkan translateZ(0) agar GPU Mobile tetap aktif!
+                    element.style.transform = `translate(calc(-50% + ${swayX}px), calc(-50% + ${swayY}px)) translateZ(0) scale(${scale}) rotate(${swayAngle}deg)`;
 
-                    flower.windTimeout = setTimeout(() => {
-                        // Memantul kembali dengan efek pegas yang sangat luwes
-                        flower.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.3, 1)';
-                        flower.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(0deg)`;
+                    element.windTimeout = setTimeout(() => {
+                        element.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.3, 1)';
+                        element.style.transform = `translate(-50%, -50%) translateZ(0) scale(${scale}) rotate(0deg)`;
                     }, 150);
                 }
             });
