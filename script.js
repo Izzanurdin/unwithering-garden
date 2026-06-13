@@ -559,6 +559,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
             setTimeout(() => { 
                 lilies.forEach(lily => lily.remove()); 
+                updateFlowerRegistry();
             }, 450); // Jeda sedikit lebih lama dari durasi animasi CSS
         });
     }
