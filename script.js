@@ -214,8 +214,6 @@ class Firefly {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(76, 175, 80, ${this.opacity})`; // Hijau khas kunang-kunang
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#4CAF50';
         ctx.fill();
     }
 }
@@ -255,8 +253,6 @@ class Star {
         ctx.closePath();
         
         ctx.fillStyle = `rgba(${this.color}, ${this.life})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `rgba(255, 249, 196, ${this.life})`;
         ctx.fill();
         ctx.restore();
     }
@@ -267,8 +263,10 @@ function animateParticles() {
     // Bersihkan layar setiap frame (kunci dari optimasi memori)
     ctx.clearRect(0, 0, width, height);
 
+    const maxFireflies = window.innerWidth < 768 ? 15 : 40;
+
     // Pertahankan populasi kunang-kunang di angka yang stabil (maks 40)
-    if (particles.filter(p => p instanceof Firefly).length < 40) {
+    if (particles.filter(p => p instanceof Firefly).length < maxFireflies) {
         particles.push(new Firefly());
     }
 

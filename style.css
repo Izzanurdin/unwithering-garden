@@ -521,5 +521,18 @@ p {
         width: 18px;
         height: 18px;
     }
+
+    /* --- OPTIMASI PERFORMA MOBILE --- */
+    .lily-coded, .gerbera-coded {
+        filter: none !important; /* Mematikan drop-shadow yang sangat berat di HP */
+    }
+    
+    .lily-coded::before {
+        display: none !important; /* Mematikan efek blur lingkaran cahaya di belakang bunga */
+    }
+    
+    #garden-section {
+        background-size: 200% 200%; /* Meringankan beban render gradien aurora */
+    }
     
 }
