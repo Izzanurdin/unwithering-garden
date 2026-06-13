@@ -564,7 +564,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Logika Klik Menanam Lily
     if (garden) {
-       const modal = document.getElementById('secret-modal');
+        const modal = document.getElementById('secret-modal');
         const secretInput = document.getElementById('secret-input');
         const secretSubmit = document.getElementById('secret-submit');
         const secretCancel = document.getElementById('secret-cancel');
@@ -572,26 +572,28 @@ window.addEventListener('DOMContentLoaded', () => {
         let pressTimer;
         let isPressing = false;
         let targetX = 0, targetY = 0;
+        let startX = 0, startY = 0; // KUNCI BARU: Menyimpan titik awal sentuhan
 
-        // Fungsi saat sentuhan dimulai
+        // 1. Fungsi saat sentuhan dimulai
         const startPress = (e) => {
-            // Abaikan jika mengeklik tombol UI
             if (e.target.closest('.btn') || e.target.closest('.secret-modal')) return;
             
             isPressing = true;
             const rect = garden.getBoundingClientRect();
             
-            // Dapatkan koordinat untuk PC maupun HP
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Catat titik asal jari diletakkan
+            startX = clientX;
+            startY = clientY;
             
             targetX = clientX - rect.left;
             targetY = clientY - rect.top;
 
-            // Mulai timer 1 detik untuk Long Press
             pressTimer = setTimeout(() => {
                 if (isPressing) {
-                    isPressing = false; // Batalkan klik biasa
+                    isPressing = false; 
                     modal.style.display = 'flex';
                     setTimeout(() => modal.style.opacity = '1', 10);
                     secretInput.value = '';
@@ -600,10 +602,26 @@ window.addEventListener('DOMContentLoaded', () => {
             }, 1000); 
         };
 
-        // Fungsi saat sentuhan dilepas
+        // 2. KUNCI BARU: Fungsi saat jari bergeser (Mencegah salah deteksi)
+        const movePress = (e) => {
+            if (!isPressing) return;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Hitung jarak pergeseran jari dari titik awal
+            const moveDistance = Math.sqrt(Math.pow(clientX - startX, 2) + Math.pow(clientY - startY, 2));
+            
+            // Jika jari bergeser lebih dari 15 pixel, anggap sebagai gerakan angin (batalkan pop-up)
+            if (moveDistance > 15) {
+                clearTimeout(pressTimer);
+                isPressing = false;
+            }
+        };
+
+        // 3. Fungsi saat sentuhan dilepas
         const endPress = (e) => {
             if (isPressing) {
-                // Jika dilepas SEBELUM 1 detik, berarti klik biasa (tanam Lily tanpa pesan)
                 clearTimeout(pressTimer);
                 isPressing = false;
                 plantLily(targetX, targetY, null);
@@ -613,6 +631,11 @@ window.addEventListener('DOMContentLoaded', () => {
         // Pasang sensor
         garden.addEventListener('mousedown', startPress);
         garden.addEventListener('touchstart', startPress, {passive: true});
+        
+        // Pasang sensor geser baru
+        garden.addEventListener('mousemove', movePress);
+        garden.addEventListener('touchmove', movePress, {passive: true});
+        
         window.addEventListener('mouseup', endPress);
         window.addEventListener('touchend', endPress);
 
