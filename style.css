@@ -523,45 +523,37 @@ p {
     }
 
     /* --- OPTIMASI PERFORMA MOBILE --- */
-    .lily-coded, .gerbera-coded {
-        filter: none !important; /* Mematikan drop-shadow yang sangat berat di HP */
-    }
-    
-    /* 2. Ciptakan Fake Glow melingkar untuk Lily */
-    .lily-coded::before {
-        display: block !important; /* Pastikan menyala */
-        content: '';
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 110px; 
-        height: 110px;
-        border-radius: 50%;
-        
-        /* KUNCI RINGAN: Pakai gradien memudar ke transparan, BUKAN filter blur */
-        background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, rgba(255, 143, 177, 0.1) 40%, transparent 70%);
-        filter: none !important; 
-        opacity: 1 !important;
-        z-index: -1;
+    .lily-coded {
+        /* Menggunakan satu layer glow pink menyala */
+        filter: drop-shadow(0 0 12px rgba(255, 105, 180, 0.8)) !important;
     }
 
-    /* 3. Ciptakan Fake Glow melingkar untuk Gerbera */
-    .gerbera-coded::before {
-        content: '';
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        
-        /* Menggunakan variabel warna yang sudah kita kirim dari JavaScript */
-        background: radial-gradient(circle, var(--glow-color) 0%, var(--outer-glow) 40%, transparent 70%);
-        z-index: -1;
+    .gerbera-coded {
+        /* Mengambil warna glow spesifik dari masing-masing Gerbera */
+        filter: drop-shadow(0 0 12px var(--glow-color)) !important;
     }
-    
+
+    /* Matikan fake glow bundar karena drop-shadow asli sudah kembali */
+    .lily-coded::before, .gerbera-coded::before {
+        display: none !important;
+    }
+
+    /* 2. PERBAIKAN PROPORSIONAL LATAR BELAKANG HP */
     #garden-section {
-        background-size: 200% 200%; /* Meringankan beban render gradien aurora */
+        /* Kembalikan ke 400% agar pergerakan aurora membentang luas */
+        background-size: 400% 400% !important; 
+    }
+
+    .garden {
+        /* Warna, posisi, dan intensitas 100% SAMA PERSIS dengan PC, 
+           hanya diubah menjadi 'ellipse' agar mengisi layar vertikal HP */
+        background: 
+            /* 1. Bias Pink di pojok kanan atas */
+            radial-gradient(ellipse at 85% 15%, rgba(216, 27, 96, 0.25) 0%, transparent 60%),
+            /* 2. Bias Hijau di pojok kiri bawah */
+            radial-gradient(ellipse at 15% 85%, rgba(76, 175, 80, 0.15) 0%, transparent 60%),
+            /* 3. Bias Biru di tengah */
+            radial-gradient(ellipse at 50% 50%, rgba(33, 150, 243, 0.1) 0%, transparent 70%) !important;
     }
     
 }
